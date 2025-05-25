@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useEffect } from 'react';
-import { Settings, Save, RotateCcw, Palette, MapPin, Plus, Download, Upload, Trash2 } from 'lucide-react';
+import { Settings, Save, RotateCcw, Palette, MapPin, Plus, Download, Upload, Trash2, Camera } from 'lucide-react';
 import {
   PAPER_SIZES,
   LABEL_PRESETS,
@@ -19,6 +19,7 @@ import {
   generatePositionGrid,
   parseUsedPositions
 } from '../../utils/labelGenerator.js';
+import ImageAnalyzer from '../ImageAnalyzer/ImageAnalyzer.jsx';
 
 const ConfigPanel = ({ config, onConfigChange, isLoading, onLoadingChange }) => {
   const [activeTab, setActiveTab] = useState('layout');
@@ -43,6 +44,34 @@ const ConfigPanel = ({ config, onConfigChange, isLoading, onLoadingChange }) => 
     }
 
     onConfigChange(newConfig);
+  }, [config, onConfigChange]);
+
+  // Handle image analysis result
+  const handleImageAnalysisComplete = useCallback((analysisResult) => {
+    const newConfig = {
+      ...config,
+      labelWidth: analysisResult.labelWidth,
+      labelHeight: analysisResult.labelHeight,
+      marginTop: analysisResult.marginTop,
+      marginLeft: analysisResult.marginLeft,
+      marginRight: analysisResult.marginRight,
+      marginBottom: analysisResult.marginBottom,
+      horizontalSpacing: analysisResult.horizontalSpacing,
+      verticalSpacing: analysisResult.verticalSpacing,
+      labelsPerRow: analysisResult.labelsPerRow,
+      labelsPerColumn: analysisResult.labelsPerColumn,
+    };
+
+    onConfigChange(newConfig);
+
+    // Switch to layout tab to show applied settings
+    setActiveTab('layout');
+    
+    // Show success message
+    setError('');
+    setTimeout(() => {
+      setError('✅ تم تطبيق الإعدادات المكتشفة بنجاح! - Settings applied successfully!');
+    }, 500);
   }, [config, onConfigChange]);
 
   // Handle paper size change
@@ -172,6 +201,7 @@ const ConfigPanel = ({ config, onConfigChange, isLoading, onLoadingChange }) => 
 
   const tabs = [
     { id: 'layout', label: 'Layout', icon: Settings },
+    { id: 'image', label: 'Image Analysis', icon: Camera },
     { id: 'position', label: 'Position', icon: MapPin },
     { id: 'style', label: 'Style', icon: Palette },
   ];
@@ -461,6 +491,26 @@ const ConfigPanel = ({ config, onConfigChange, isLoading, onLoadingChange }) => 
               <strong>Layout:</strong> {config.labelsPerRow} × {config.labelsPerColumn} = {config.labelsPerRow * config.labelsPerColumn} labels per page
             </p>
           </div>
+        </div>
+      )}
+
+      {/* Image Analysis Tab */}
+      {activeTab === 'image' && (
+        <div className="space-y-4">
+          <ImageAnalyzer
+            onAnalysisComplete={handleImageAnalysisComplete}
+            isLoading={isLoading}
+            onLoadingChange={onLoadingChange}
+          />
+          
+          {/* Show success/error messages */}
+          {error && (
+            <div className={`rounded-md p-3 ${
+              error.includes('✅') ? 'bg-green-50 text-green-800' : 'bg-red-50 text-red-800'
+            }`}>
+              <p className="text-sm">{error}</p>
+            </div>
+          )}
         </div>
       )}
 
