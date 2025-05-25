@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Employee Label Printer - Direct Access</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            line-height: 1.6;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+        .container {
+            background: white;
+            border-radius: 10px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .logo {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+        h1 {
+            color: #2c3e50;
+            margin: 0;
+        }
+        .subtitle {
+            color: #7f8c8d;
+            font-size: 1.1em;
+        }
+        .method {
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        .method h3 {
+            color: #495057;
+            margin-top: 0;
+        }
+        .btn {
+            display: inline-block;
+            background: #007bff;
+            color: white;
+            padding: 12px 24px;
+            text-decoration: none;
+            border-radius: 5px;
+            font-weight: bold;
+            margin: 10px 10px 10px 0;
+            transition: background 0.3s;
+        }
+        .btn:hover {
+            background: #0056b3;
+        }
+        .btn-success {
+            background: #28a745;
+        }
+        .btn-success:hover {
+            background: #1e7e34;
+        }
+        .btn-warning {
+            background: #ffc107;
+            color: #212529;
+        }
+        .btn-warning:hover {
+            background: #e0a800;
+        }
+        .warning {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-radius: 5px;
+            padding: 15px;
+            margin: 15px 0;
+            color: #856404;
+        }
+        .info {
+            background: #d1ecf1;
+            border: 1px solid #bee5eb;
+            border-radius: 5px;
+            padding: 15px;
+            margin: 15px 0;
+            color: #0c5460;
+        }
+        .features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        .feature {
+            background: #e8f5e8;
+            padding: 15px;
+            border-radius: 5px;
+            border-left: 4px solid #28a745;
+        }
+        .feature h4 {
+            margin: 0 0 10px 0;
+            color: #155724;
+        }
+        .steps {
+            counter-reset: step-counter;
+        }
+        .step {
+            counter-increment: step-counter;
+            margin: 15px 0;
+            padding-left: 40px;
+            position: relative;
+        }
+        .step::before {
+            content: counter(step-counter);
+            position: absolute;
+            left: 0;
+            top: 0;
+            background: #007bff;
+            color: white;
+            width: 25px;
+            height: 25px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="logo">🏷️</div>
+            <h1>Employee Label Printer</h1>
+            <p class="subtitle">Direct Access Portal</p>
+        </div>
+
+        <div class="info">
+            <strong>Welcome!</strong> Choose your preferred method to access the Employee Label Printer application.
+        </div>
+
+        <div class="method">
+            <h3>🚀 Method 1: Standalone Version (No Installation Required)</h3>
+            <p><strong>NEW!</strong> Run the application directly without installing Node.js or Python. Perfect for computers without development tools.</p>
+
+            <div class="steps">
+                <div class="step">Simply open the standalone HTML file</div>
+                <div class="step">All features work directly in your browser</div>
+                <div class="step">No installation, no setup, no dependencies</div>
+            </div>
+
+            <a href="standalone-app.html" class="btn btn-success" target="_blank">🚀 Open Standalone Version</a>
+            <a href="open-standalone.bat" class="btn btn-secondary">📁 Windows Launcher</a>
+        </div>
+
+        <div class="method">
+            <h3>⚙️ Method 2: Server-Based (Advanced)</h3>
+            <p>Run the application with a local server for development or advanced features.</p>
+
+            <div class="steps">
+                <div class="step">Choose your server type (Node.js or Python)</div>
+                <div class="step">Run the appropriate launcher script</div>
+                <div class="step">Application opens automatically in your browser</div>
+            </div>
+
+            <a href="#" onclick="showInstructions('server')" class="btn btn-success">📖 View Server Instructions</a>
+        </div>
+
+        <div class="method">
+            <h3>📁 Method 3: Alternative File Access</h3>
+            <p>Access the original React application files directly (may have limitations).</p>
+
+            <a href="app/index.html" class="btn btn-warning" target="_blank">🌐 Open React Application</a>
+
+            <div class="warning">
+                <strong>Note:</strong> The React application may have limited file import/export features when running directly from files due to browser security restrictions. Use the Standalone Version for full functionality.
+            </div>
+        </div>
+
+        <div class="method">
+            <h3>🌐 Method 4: Web Server Deployment</h3>
+            <p>If you have an existing web server, copy the app folder to your web server's document root.</p>
+
+            <div class="steps">
+                <div class="step">Copy the contents of the 'app' folder to your web server</div>
+                <div class="step">Access via your web server's URL</div>
+                <div class="step">All features will work normally</div>
+            </div>
+
+            <a href="#" onclick="showInstructions('webserver')" class="btn">🔧 Web Server Setup</a>
+        </div>
+
+        <div class="features">
+            <div class="feature">
+                <h4>✨ Full Features</h4>
+                <p>Label design, employee data import, printing, and preset management</p>
+            </div>
+            <div class="feature">
+                <h4>🌍 Multi-language</h4>
+                <p>Arabic and English interface support</p>
+            </div>
+            <div class="feature">
+                <h4>🎯 Precision</h4>
+                <p>0.1mm precision for exact label positioning</p>
+            </div>
+            <div class="feature">
+                <h4>🖨️ Print Ready</h4>
+                <p>Direct printing and PDF export capabilities</p>
+            </div>
+        </div>
+
+        <div id="instructions" style="display: none;">
+            <div id="server-instructions" style="display: none;">
+                <h3>Server Setup Instructions</h3>
+                <h4>Windows:</h4>
+                <ul>
+                    <li>For Node.js: Double-click <code>start-app.bat</code></li>
+                    <li>For Python: Double-click <code>start-app-python.bat</code></li>
+                </ul>
+                <h4>Linux/Mac:</h4>
+                <ul>
+                    <li>For Node.js: Run <code>./start-app.sh</code></li>
+                    <li>For Python: Run <code>python3 server/python-server.py</code></li>
+                </ul>
+                <p><strong>Access:</strong> http://localhost:3000</p>
+            </div>
+
+            <div id="webserver-instructions" style="display: none;">
+                <h3>Web Server Setup</h3>
+                <h4>Apache:</h4>
+                <ol>
+                    <li>Copy app folder contents to <code>/var/www/html/label-printer/</code></li>
+                    <li>Access via <code>http://your-server/label-printer/</code></li>
+                </ol>
+                <h4>Nginx:</h4>
+                <ol>
+                    <li>Copy app folder contents to your document root</li>
+                    <li>Configure location block for SPA routing</li>
+                </ol>
+                <h4>IIS:</h4>
+                <ol>
+                    <li>Copy app folder contents to your site folder</li>
+                    <li>Configure URL rewrite for SPA routing</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function showInstructions(type) {
+            const instructionsDiv = document.getElementById('instructions');
+            const serverInstructions = document.getElementById('server-instructions');
+            const webserverInstructions = document.getElementById('webserver-instructions');
+
+            // Hide all instructions first
+            serverInstructions.style.display = 'none';
+            webserverInstructions.style.display = 'none';
+
+            // Show the requested instructions
+            if (type === 'server') {
+                serverInstructions.style.display = 'block';
+            } else if (type === 'webserver') {
+                webserverInstructions.style.display = 'block';
+            }
+
+            // Show the instructions container
+            instructionsDiv.style.display = 'block';
+
+            // Scroll to instructions
+            instructionsDiv.scrollIntoView({ behavior: 'smooth' });
+        }
+    </script>
+</body>
+</html>

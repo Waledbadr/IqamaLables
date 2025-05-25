@@ -1,0 +1,24 @@
+{
+  "name": "employee-label-printer-server",
+  "version": "1.0.0",
+  "description": "Production server for Employee Label Printer application",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "keywords": [
+    "label-printer",
+    "employee-labels",
+    "http-server",
+    "static-server"
+  ],
+  "author": "Employee Label Printer Team",
+  "license": "MIT",
+  "engines": {
+    "node": ">=14.0.0"
+  },
+  "bin": {
+    "label-printer-server": "./server.js"
+  }
+}

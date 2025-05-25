@@ -1,0 +1,421 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Employee Label Printer - Updated</title>
+    <script type="module" crossorigin src="index-E7T3Zklu.js"></script>
+    <link rel="stylesheet" crossorigin href="index-BWMFunJX.css">
+    <style>
+      /* Additional styles for updated features */
+      .label-preset-section {
+        background: #f8f9fa;
+        border: 1px solid #e9ecef;
+        border-radius: 8px;
+        padding: 16px;
+        margin-bottom: 16px;
+      }
+      
+      .preset-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 12px;
+      }
+      
+      .preset-title {
+        font-weight: 600;
+        color: #495057;
+        font-size: 14px;
+      }
+      
+      .preset-actions {
+        display: flex;
+        gap: 8px;
+      }
+      
+      .preset-btn {
+        padding: 6px 8px;
+        border: 1px solid #dee2e6;
+        border-radius: 4px;
+        background: white;
+        cursor: pointer;
+        font-size: 12px;
+        transition: all 0.2s;
+      }
+      
+      .preset-btn:hover {
+        background: #e9ecef;
+      }
+      
+      .preset-btn.save {
+        color: #0066cc;
+        border-color: #0066cc;
+      }
+      
+      .preset-btn.delete {
+        color: #dc3545;
+        border-color: #dc3545;
+      }
+      
+      .preset-select {
+        width: 100%;
+        padding: 8px 12px;
+        border: 1px solid #ced4da;
+        border-radius: 4px;
+        font-size: 14px;
+        background: white;
+      }
+      
+      .preset-info {
+        font-size: 12px;
+        color: #6c757d;
+        margin-top: 8px;
+        padding: 8px;
+        background: #e7f3ff;
+        border-radius: 4px;
+        border-left: 3px solid #0066cc;
+      }
+      
+      .modal-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.5);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 1000;
+      }
+      
+      .modal-content {
+        background: white;
+        border-radius: 8px;
+        padding: 24px;
+        width: 400px;
+        max-width: 90vw;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+      }
+      
+      .modal-title {
+        font-size: 18px;
+        font-weight: 600;
+        margin-bottom: 16px;
+        color: #212529;
+      }
+      
+      .modal-input {
+        width: 100%;
+        padding: 10px 12px;
+        border: 1px solid #ced4da;
+        border-radius: 4px;
+        font-size: 14px;
+        margin-bottom: 12px;
+      }
+      
+      .modal-actions {
+        display: flex;
+        gap: 12px;
+        justify-content: flex-end;
+        margin-top: 20px;
+      }
+      
+      .modal-btn {
+        padding: 8px 16px;
+        border: 1px solid #ced4da;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 14px;
+        transition: all 0.2s;
+      }
+      
+      .modal-btn.primary {
+        background: #0066cc;
+        color: white;
+        border-color: #0066cc;
+      }
+      
+      .modal-btn.primary:hover {
+        background: #0056b3;
+      }
+      
+      .modal-btn.secondary {
+        background: white;
+        color: #6c757d;
+      }
+      
+      .modal-btn.secondary:hover {
+        background: #f8f9fa;
+      }
+      
+      .error-message {
+        background: #f8d7da;
+        color: #721c24;
+        padding: 8px 12px;
+        border-radius: 4px;
+        font-size: 12px;
+        margin-top: 8px;
+      }
+      
+      .success-message {
+        background: #d4edda;
+        color: #155724;
+        padding: 8px 12px;
+        border-radius: 4px;
+        font-size: 12px;
+        margin-top: 8px;
+      }
+      
+      /* Hide configuration preset section */
+      .config-preset-section {
+        display: none !important;
+      }
+      
+      /* Enhanced label preset section */
+      .label-preset-enhanced {
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        border: 2px solid #0066cc;
+        border-radius: 12px;
+        padding: 20px;
+        margin-bottom: 20px;
+        box-shadow: 0 2px 8px rgba(0, 102, 204, 0.1);
+      }
+      
+      .bilingual-label {
+        font-weight: 600;
+        color: #212529;
+        margin-bottom: 8px;
+        font-size: 14px;
+      }
+      
+      .preset-description {
+        font-size: 11px;
+        color: #6c757d;
+        margin-top: 4px;
+        line-height: 1.4;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="root"></div>
+    
+    <script>
+      // Enhanced Label Preset Management
+      window.LabelPresetManager = {
+        // Storage key for custom presets
+        STORAGE_KEY: 'labelPrinter_customLabelPresets',
+        
+        // Load custom presets from localStorage
+        loadCustomPresets: function() {
+          try {
+            const saved = localStorage.getItem(this.STORAGE_KEY);
+            return saved ? JSON.parse(saved) : [];
+          } catch (error) {
+            console.error('Failed to load custom presets:', error);
+            return [];
+          }
+        },
+        
+        // Save custom presets to localStorage
+        saveCustomPresets: function(presets) {
+          try {
+            localStorage.setItem(this.STORAGE_KEY, JSON.stringify(presets));
+            return true;
+          } catch (error) {
+            console.error('Failed to save custom presets:', error);
+            return false;
+          }
+        },
+        
+        // Add a new custom preset
+        addPreset: function(name, config) {
+          const presets = this.loadCustomPresets();
+          const newPreset = {
+            id: 'custom_' + Date.now(),
+            name: name,
+            config: config,
+            createdAt: new Date().toISOString()
+          };
+          
+          presets.push(newPreset);
+          this.saveCustomPresets(presets);
+          return newPreset;
+        },
+        
+        // Delete a custom preset
+        deletePreset: function(presetId) {
+          const presets = this.loadCustomPresets();
+          const filtered = presets.filter(p => p.id !== presetId);
+          this.saveCustomPresets(filtered);
+          return filtered;
+        },
+        
+        // Get all presets (built-in + custom)
+        getAllPresets: function() {
+          const customPresets = this.loadCustomPresets();
+          return {
+            builtin: window.LABEL_PRESETS || {},
+            custom: customPresets
+          };
+        }
+      };
+      
+      // Initialize enhanced features when the app loads
+      document.addEventListener('DOMContentLoaded', function() {
+        console.log('Enhanced Label Preset Manager loaded');
+        
+        // Add event listeners for enhanced functionality
+        setTimeout(function() {
+          // Try to enhance the existing label preset section
+          const labelPresetSelect = document.querySelector('select[value="custom"]');
+          if (labelPresetSelect) {
+            console.log('Found label preset select, enhancing...');
+            enhanceLabelPresetSection(labelPresetSelect);
+          }
+        }, 1000);
+      });
+      
+      function enhanceLabelPresetSection(selectElement) {
+        const container = selectElement.closest('.input-group');
+        if (!container) return;
+        
+        // Add enhanced styling
+        container.classList.add('label-preset-enhanced');
+        
+        // Update label
+        const label = container.querySelector('label');
+        if (label) {
+          label.innerHTML = 'Label Preset - قالب الملصقات';
+          label.classList.add('bilingual-label');
+        }
+        
+        // Add save button
+        const saveBtn = document.createElement('button');
+        saveBtn.innerHTML = '💾 حفظ';
+        saveBtn.className = 'preset-btn save';
+        saveBtn.title = 'Save current settings as new preset';
+        saveBtn.onclick = function() {
+          showSavePresetDialog();
+        };
+        
+        // Add button container
+        const btnContainer = document.createElement('div');
+        btnContainer.className = 'preset-actions';
+        btnContainer.appendChild(saveBtn);
+        
+        container.appendChild(btnContainer);
+        
+        // Add description
+        const description = document.createElement('div');
+        description.className = 'preset-description';
+        description.innerHTML = 'يمكنك حفظ الإعدادات الحالية كقالب جديد للاستخدام لاحقاً<br>You can save current settings as a new preset for later use';
+        container.appendChild(description);
+      }
+      
+      function showSavePresetDialog() {
+        // Create modal
+        const modal = document.createElement('div');
+        modal.className = 'modal-overlay';
+        modal.innerHTML = `
+          <div class="modal-content">
+            <h3 class="modal-title">حفظ قالب جديد / Save New Preset</h3>
+            <input type="text" class="modal-input" placeholder="اسم القالب / Preset Name" id="presetNameInput">
+            <div class="preset-info">
+              سيتم حفظ: حجم الورقة، أبعاد الملصقات، الهوامش، والمسافات<br>
+              Will save: page size, label dimensions, margins, and spacing
+            </div>
+            <div class="modal-actions">
+              <button class="modal-btn secondary" onclick="closeSaveDialog()">إلغاء / Cancel</button>
+              <button class="modal-btn primary" onclick="saveCurrentPreset()">حفظ / Save</button>
+            </div>
+          </div>
+        `;
+        
+        document.body.appendChild(modal);
+        document.getElementById('presetNameInput').focus();
+        
+        // Close on background click
+        modal.onclick = function(e) {
+          if (e.target === modal) {
+            closeSaveDialog();
+          }
+        };
+      }
+      
+      function closeSaveDialog() {
+        const modal = document.querySelector('.modal-overlay');
+        if (modal) {
+          modal.remove();
+        }
+      }
+      
+      function saveCurrentPreset() {
+        const nameInput = document.getElementById('presetNameInput');
+        const name = nameInput.value.trim();
+        
+        if (!name) {
+          showMessage('يرجى إدخال اسم القالب / Please enter preset name', 'error');
+          return;
+        }
+        
+        // Get current configuration (this would need to be integrated with the actual app)
+        const currentConfig = getCurrentLabelConfig();
+        
+        // Save preset
+        const newPreset = window.LabelPresetManager.addPreset(name, currentConfig);
+        
+        showMessage(`تم حفظ القالب "${name}" بنجاح / Preset "${name}" saved successfully`, 'success');
+        closeSaveDialog();
+        
+        // Refresh preset list (would need integration with actual app)
+        refreshPresetList();
+      }
+      
+      function getCurrentLabelConfig() {
+        // This would need to be integrated with the actual React app
+        // For now, return a sample config
+        return {
+          pageSize: 'A4',
+          labelWidth: 63.5,
+          labelHeight: 38.1,
+          labelsPerRow: 3,
+          labelsPerColumn: 7,
+          marginTop: 15.5,
+          marginBottom: 15.5,
+          marginLeft: 7,
+          marginRight: 7,
+          horizontalSpacing: 2.5,
+          verticalSpacing: 0
+        };
+      }
+      
+      function refreshPresetList() {
+        // This would need to be integrated with the actual React app
+        console.log('Refreshing preset list...');
+      }
+      
+      function showMessage(message, type) {
+        const existing = document.querySelector('.message-toast');
+        if (existing) existing.remove();
+        
+        const toast = document.createElement('div');
+        toast.className = `message-toast ${type === 'error' ? 'error-message' : 'success-message'}`;
+        toast.innerHTML = message;
+        toast.style.position = 'fixed';
+        toast.style.top = '20px';
+        toast.style.right = '20px';
+        toast.style.zIndex = '1001';
+        toast.style.maxWidth = '300px';
+        
+        document.body.appendChild(toast);
+        
+        setTimeout(() => {
+          toast.remove();
+        }, 3000);
+      }
+    </script>
+  </body>
+</html>

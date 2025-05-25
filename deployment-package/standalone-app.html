@@ -1,0 +1,1734 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Employee Label Printer - Standalone</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: #f9fafb;
+            color: #111827;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            background: white;
+            border-bottom: 1px solid #e5e7eb;
+            padding: 20px 0;
+            margin-bottom: 30px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .header h1 {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #1f2937;
+            margin-bottom: 5px;
+        }
+
+        .header p {
+            color: #6b7280;
+            font-size: 0.9rem;
+        }
+
+        .main-grid {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 30px;
+            align-items: start;
+        }
+
+        .panel {
+            background: white;
+            border-radius: 8px;
+            padding: 24px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            border: 1px solid #e5e7eb;
+        }
+
+        .panel h2 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #1f2937;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: #374151;
+            margin-bottom: 6px;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            font-size: 0.875rem;
+            transition: border-color 0.2s;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
+        .form-textarea {
+            min-height: 120px;
+            resize: vertical;
+            font-family: 'Courier New', monospace;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 16px;
+            border: none;
+            border-radius: 6px;
+            font-size: 0.875rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-decoration: none;
+        }
+
+        .btn-primary {
+            background-color: #3b82f6;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: #2563eb;
+        }
+
+        .btn-secondary {
+            background-color: #6b7280;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background-color: #4b5563;
+        }
+
+        .btn-success {
+            background-color: #10b981;
+            color: white;
+        }
+
+        .btn-success:hover {
+            background-color: #059669;
+        }
+
+        .btn-danger {
+            background-color: #ef4444;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background-color: #dc2626;
+        }
+
+        .tabs {
+            display: flex;
+            border-bottom: 1px solid #e5e7eb;
+            margin-bottom: 20px;
+        }
+
+        .tab {
+            padding: 10px 16px;
+            border: none;
+            background: none;
+            cursor: pointer;
+            font-size: 0.875rem;
+            color: #6b7280;
+            border-bottom: 2px solid transparent;
+            transition: all 0.2s;
+        }
+
+        .tab.active {
+            color: #3b82f6;
+            border-bottom-color: #3b82f6;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        .grid-3 {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 15px;
+        }
+
+        .preview-container {
+            background: white;
+            border-radius: 8px;
+            padding: 24px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            border: 1px solid #e5e7eb;
+            min-height: 600px;
+        }
+
+        .preview-controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .page-preview {
+            background: white;
+            margin: 0 auto;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .label {
+            position: absolute;
+            border: 1px solid #d1d5db;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            background: white;
+            overflow: hidden;
+        }
+
+        .label-grid {
+            position: absolute;
+            border: 1px dashed #9ca3af;
+            opacity: 0.5;
+        }
+
+        .status-bar {
+            background: #f3f4f6;
+            padding: 10px 15px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+            font-size: 0.875rem;
+            color: #4b5563;
+        }
+
+        .error {
+            background: #fef2f2;
+            border: 1px solid #fecaca;
+            color: #dc2626;
+            padding: 12px;
+            border-radius: 6px;
+            margin-bottom: 15px;
+        }
+
+        .success {
+            background: #f0fdf4;
+            border: 1px solid #bbf7d0;
+            color: #166534;
+            padding: 12px;
+            border-radius: 6px;
+            margin-bottom: 15px;
+        }
+
+        .loading {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 40px;
+            color: #6b7280;
+        }
+
+        .spinner {
+            width: 20px;
+            height: 20px;
+            border: 2px solid #e5e7eb;
+            border-top: 2px solid #3b82f6;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-right: 10px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .file-drop {
+            border: 2px dashed #d1d5db;
+            border-radius: 8px;
+            padding: 30px;
+            text-align: center;
+            transition: all 0.2s;
+            cursor: pointer;
+        }
+
+        .file-drop:hover,
+        .file-drop.drag-over {
+            border-color: #3b82f6;
+            background-color: #eff6ff;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        @media (max-width: 768px) {
+            .main-grid {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+
+            .grid-2,
+            .grid-3 {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .screen-only {
+            display: block;
+        }
+
+        @media print {
+            /* Hide everything by default */
+            body * {
+                visibility: hidden;
+            }
+
+            /* Show only the print area */
+            .print-area,
+            .print-area * {
+                visibility: visible;
+            }
+
+            /* Hide screen-only elements */
+            .screen-only {
+                display: none !important;
+                visibility: hidden !important;
+            }
+
+            /* Hide grid lines and helper elements during print */
+            .label-grid {
+                display: none !important;
+            }
+
+            /* Hide page controls and UI elements */
+            .preview-controls,
+            .header,
+            .left-panel,
+            .container > *:not(.preview-container) {
+                display: none !important;
+            }
+
+            /* Position print area */
+            .print-area {
+                position: absolute;
+                left: 0;
+                top: 0;
+                width: 100%;
+                margin: 0 !important;
+                padding: 0 !important;
+            }
+
+            .preview-container {
+                position: absolute;
+                left: 0;
+                top: 0;
+                width: 100%;
+                margin: 0 !important;
+                padding: 0 !important;
+                box-shadow: none;
+                border: none;
+                background: white;
+            }
+
+            /* Ensure page container is properly sized */
+            .page-preview {
+                transform: none !important;
+                box-shadow: none !important;
+                margin: 0 !important;
+                padding: 0 !important;
+                page-break-after: always;
+                position: relative;
+            }
+
+            /* Style labels for print */
+            .label {
+                border: 1px solid #000 !important;
+                background: white !important;
+                -webkit-print-color-adjust: exact;
+                color-adjust: exact;
+                font-size: inherit !important;
+            }
+
+            /* Remove any background colors or shadows */
+            html, body {
+                background: white !important;
+                margin: 0 !important;
+                padding: 0 !important;
+                border: 0 !important;
+                outline: 0 !important;
+            }
+
+            /* Enhanced print page settings for better margin control */
+            @page {
+                margin: 0 !important;
+                padding: 0 !important;
+                size: A4;
+            }
+
+            /* Alternative page settings for different browsers */
+            @page :first {
+                margin: 0 !important;
+            }
+
+            @page :left {
+                margin: 0 !important;
+            }
+
+            @page :right {
+                margin: 0 !important;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="container">
+            <h1>🏷️ Employee Label Printer</h1>
+            <p>Create and print professional employee ID labels - طباعة ملصقات الموظفين</p>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="main-grid">
+            <!-- Left Panel - Configuration -->
+            <div class="left-panel">
+                <!-- Employee Input Panel -->
+                <div class="panel">
+                    <h2>👥 Employee IDs - معرفات الموظفين</h2>
+
+                    <div class="form-group">
+                        <label class="form-label">Enter Employee IDs (one per line or comma-separated)</label>
+                        <textarea
+                            id="employeeInput"
+                            class="form-input form-textarea"
+                            placeholder="EMP001&#10;EMP002&#10;EMP003&#10;or EMP001, EMP002, EMP003"
+                        ></textarea>
+                        <div id="employeeCount" class="status-bar hidden"></div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Or upload CSV file</label>
+                        <div class="file-drop" id="fileDropZone">
+                            <div>📁 Drag and drop CSV file here or click to select</div>
+                            <input type="file" id="csvFile" accept=".csv" class="hidden">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <button id="clearBtn" class="btn btn-danger">🗑️ Clear All</button>
+                        <button id="sampleBtn" class="btn btn-secondary">📝 Load Sample</button>
+                    </div>
+                </div>
+
+                <!-- Configuration Panel -->
+                <div class="panel">
+                    <h2>⚙️ Configuration - الإعدادات</h2>
+
+                    <div class="tabs">
+                        <button class="tab active" data-tab="layout">📐 Layout</button>
+                        <button class="tab" data-tab="style">🎨 Style</button>
+                        <button class="tab" data-tab="position">📍 Position</button>
+                    </div>
+
+                    <!-- Layout Tab -->
+                    <div id="layout" class="tab-content active">
+                        <div class="form-group">
+                            <label class="form-label">Paper Size</label>
+                            <select id="paperSize" class="form-input">
+                                <option value="A4">A4 (210 × 297 mm)</option>
+                                <option value="Letter">Letter (216 × 279 mm)</option>
+                                <option value="Legal">Legal (216 × 356 mm)</option>
+                                <option value="Custom">Custom Size</option>
+                            </select>
+                        </div>
+
+                        <div class="grid-2">
+                            <div class="form-group">
+                                <label class="form-label">Page Width (mm)</label>
+                                <input type="number" id="pageWidth" class="form-input" value="210" step="0.1">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Page Height (mm)</label>
+                                <input type="number" id="pageHeight" class="form-input" value="297" step="0.1">
+                            </div>
+                        </div>
+
+                        <div class="grid-2">
+                            <div class="form-group">
+                                <label class="form-label">Label Width (mm)</label>
+                                <input type="number" id="labelWidth" class="form-input" value="50" step="0.1">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Label Height (mm)</label>
+                                <input type="number" id="labelHeight" class="form-input" value="25" step="0.1">
+                            </div>
+                        </div>
+
+                        <div class="grid-2">
+                            <div class="form-group">
+                                <label class="form-label">Horizontal Spacing (mm)</label>
+                                <input type="number" id="horizontalSpacing" class="form-input" value="5" step="0.1">
+                                <small style="color: #6b7280; font-size: 0.75rem;">Use 0 for no spacing, negative values for overlap</small>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Vertical Spacing (mm)</label>
+                                <input type="number" id="verticalSpacing" class="form-input" value="3" step="0.1">
+                                <small style="color: #6b7280; font-size: 0.75rem;">Use 0 for no spacing, negative values for overlap</small>
+                            </div>
+                        </div>
+
+                        <h3 style="margin: 20px 0 10px 0; font-size: 1rem; color: #374151;">Margins (mm) - الهوامش</h3>
+
+                        <!-- Quick Margin Presets -->
+                        <div class="form-group" style="margin-bottom: 15px;">
+                            <label class="form-label">Quick Margin Presets - إعدادات سريعة</label>
+                            <div style="display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 8px;">
+                                <button type="button" class="btn btn-secondary" onclick="setMarginPreset('zero')" style="font-size: 0.75rem; padding: 6px 10px;">
+                                    🔲 Zero (0mm)
+                                </button>
+                                <button type="button" class="btn btn-secondary" onclick="setMarginPreset('minimal')" style="font-size: 0.75rem; padding: 6px 10px;">
+                                    📏 Minimal (5mm)
+                                </button>
+                                <button type="button" class="btn btn-secondary" onclick="setMarginPreset('standard')" style="font-size: 0.75rem; padding: 6px 10px;">
+                                    📐 Standard (10mm)
+                                </button>
+                                <button type="button" class="btn btn-secondary" onclick="setMarginPreset('compensate')" style="font-size: 0.75rem; padding: 6px 10px;">
+                                    ⚡ Compensate (-3mm)
+                                </button>
+                            </div>
+                            <small style="color: #6b7280; font-size: 0.75rem; display: block; line-height: 1.4;">
+                                💡 <strong>Tip:</strong> If printer still adds margins with "Zero", try "Compensate" to offset printer's built-in margins<br>
+                                💡 <strong>نصيحة:</strong> إذا كانت الطابعة لا تزال تضيف هوامش مع "Zero"، جرب "Compensate" لتعويض هوامش الطابعة
+                            </small>
+                        </div>
+
+                        <!-- Manual Margin Controls -->
+                        <div class="grid-2">
+                            <div class="form-group">
+                                <label class="form-label">Top Margin - الهامش العلوي</label>
+                                <input type="number" id="marginTop" class="form-input" value="10" step="0.1">
+                                <small style="color: #6b7280; font-size: 0.75rem;">Negative values compensate for printer margins</small>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Bottom Margin - الهامش السفلي</label>
+                                <input type="number" id="marginBottom" class="form-input" value="10" step="0.1">
+                                <small style="color: #6b7280; font-size: 0.75rem;">Negative values compensate for printer margins</small>
+                            </div>
+                        </div>
+                        <div class="grid-2">
+                            <div class="form-group">
+                                <label class="form-label">Left Margin - الهامش الأيسر</label>
+                                <input type="number" id="marginLeft" class="form-input" value="10" step="0.1">
+                                <small style="color: #6b7280; font-size: 0.75rem;">Negative values compensate for printer margins</small>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Right Margin - الهامش الأيمن</label>
+                                <input type="number" id="marginRight" class="form-input" value="10" step="0.1">
+                                <small style="color: #6b7280; font-size: 0.75rem;">Negative values compensate for printer margins</small>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Style Tab -->
+                    <div id="style" class="tab-content">
+                        <div class="grid-2">
+                            <div class="form-group">
+                                <label class="form-label">Font Size (pt)</label>
+                                <input type="number" id="fontSize" class="form-input" value="12" min="6" max="72">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Font Family</label>
+                                <select id="fontFamily" class="form-input">
+                                    <option value="Arial">Arial</option>
+                                    <option value="Helvetica">Helvetica</option>
+                                    <option value="Times New Roman">Times New Roman</option>
+                                    <option value="Courier New">Courier New</option>
+                                    <option value="Verdana">Verdana</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="grid-2">
+                            <div class="form-group">
+                                <label class="form-label">Font Weight</label>
+                                <select id="fontWeight" class="form-input">
+                                    <option value="normal">Normal</option>
+                                    <option value="bold">Bold</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Text Alignment</label>
+                                <select id="textAlign" class="form-input">
+                                    <option value="left">Left</option>
+                                    <option value="center">Center</option>
+                                    <option value="right">Right</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="grid-2">
+                            <div class="form-group">
+                                <label class="form-label">Text Color</label>
+                                <input type="color" id="textColor" class="form-input" value="#000000">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Background Color</label>
+                                <input type="color" id="backgroundColor" class="form-input" value="#ffffff">
+                            </div>
+                        </div>
+
+                        <div class="grid-2">
+                            <div class="form-group">
+                                <label class="form-label">Prefix</label>
+                                <input type="text" id="prefix" class="form-input" placeholder="e.g., ID:">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Suffix</label>
+                                <input type="text" id="suffix" class="form-input" placeholder="e.g., -2024">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Position Tab -->
+                    <div id="position" class="tab-content">
+                        <div class="grid-2">
+                            <div class="form-group">
+                                <label class="form-label">Start Row (0-based)</label>
+                                <input type="number" id="startRow" class="form-input" value="0" min="0">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Start Column (0-based)</label>
+                                <input type="number" id="startColumn" class="form-input" value="0" min="0">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Used Positions (row,col format, e.g., 0,0 1,1 2,2)</label>
+                            <input type="text" id="usedPositions" class="form-input" placeholder="0,0 1,1 2,2">
+                            <small style="color: #6b7280; font-size: 0.75rem;">Skip these positions when placing labels</small>
+                        </div>
+
+                        <div id="calculatedInfo" class="status-bar">
+                            Labels per row: <span id="labelsPerRow">0</span> |
+                            Labels per column: <span id="labelsPerColumn">0</span> |
+                            Total per page: <span id="totalPerPage">0</span>
+                        </div>
+
+                        <div id="distributionInfo" class="status-bar hidden">
+                            <strong>Label Distribution:</strong>
+                            <div id="distributionDetails"></div>
+                        </div>
+                    </div>
+
+                    <div style="margin-top: 20px; padding-top: 20px; border-top: 1px solid #e5e7eb;">
+                        <button id="resetBtn" class="btn btn-secondary">🔄 Reset to Defaults</button>
+                        <button id="updateBtn" class="btn btn-primary">🔄 Update Preview</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Panel - Preview -->
+            <div class="preview-container">
+                <div class="preview-controls">
+                    <h2>👁️ Preview - معاينة</h2>
+                    <div>
+                        <button id="prevPage" class="btn btn-secondary" disabled>← Previous</button>
+                        <span id="pageInfo">Page 0 of 0</span>
+                        <button id="nextPage" class="btn btn-secondary" disabled>Next →</button>
+                    </div>
+                    <div>
+                        <button id="zoomOut" class="btn btn-secondary">🔍-</button>
+                        <span id="zoomLevel">50%</span>
+                        <button id="zoomIn" class="btn btn-secondary">🔍+</button>
+                        <button id="printBtn" class="btn btn-success">🖨️ Print Labels</button>
+                    </div>
+                </div>
+
+                <div id="previewArea" class="print-area">
+                    <div class="loading">
+                        <div class="spinner"></div>
+                        Enter employee IDs to see preview
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        // Settings storage key
+        const SETTINGS_STORAGE_KEY = 'employeeLabelPrinter_settings';
+
+        // Default configuration
+        const DEFAULT_CONFIG = {
+            // Page settings
+            pageSize: 'A4',
+            pageWidth: 210,
+            pageHeight: 297,
+            orientation: 'portrait',
+
+            // Margins
+            marginTop: 10,
+            marginBottom: 10,
+            marginLeft: 10,
+            marginRight: 10,
+
+            // Label dimensions
+            labelWidth: 50,
+            labelHeight: 25,
+
+            // Layout (calculated)
+            labelsPerRow: 3,
+            labelsPerColumn: 10,
+
+            // Spacing
+            horizontalSpacing: 5,
+            verticalSpacing: 3,
+
+            // Starting position
+            startRow: 0,
+            startColumn: 0,
+
+            // Text formatting
+            prefix: '',
+            suffix: '',
+            fontSize: 12,
+            fontFamily: 'Arial',
+            fontWeight: 'normal',
+            textAlign: 'center',
+            textColor: '#000000',
+            backgroundColor: '#ffffff',
+            borderColor: '#d1d5db',
+            borderWidth: 1,
+
+            // Used positions
+            usedPositions: []
+        };
+
+        // Load saved settings or use defaults
+        function loadSettings() {
+            try {
+                const saved = localStorage.getItem(SETTINGS_STORAGE_KEY);
+                if (saved) {
+                    const parsedSettings = JSON.parse(saved);
+                    // Merge with defaults to ensure all properties exist
+                    return { ...DEFAULT_CONFIG, ...parsedSettings };
+                }
+            } catch (error) {
+                console.error('Failed to load settings:', error);
+            }
+            return { ...DEFAULT_CONFIG };
+        }
+
+        // Save settings to localStorage
+        function saveSettings(config) {
+            try {
+                localStorage.setItem(SETTINGS_STORAGE_KEY, JSON.stringify(config));
+                return true;
+            } catch (error) {
+                console.error('Failed to save settings:', error);
+                return false;
+            }
+        }
+
+        // Application State
+        let appState = {
+            employeeIds: [],
+            currentPage: 0,
+            zoom: 0.5,
+            config: loadSettings(),
+            labelPages: []
+        };
+
+        // Paper sizes
+        const PAPER_SIZES = {
+            A4: { width: 210, height: 297 },
+            Letter: { width: 215.9, height: 279.4 },
+            Legal: { width: 215.9, height: 355.6 },
+            Custom: { width: 210, height: 297 }
+        };
+
+        // Utility functions
+        function mmToPx(mm, dpi = 96) {
+            return (mm * dpi) / 25.4;
+        }
+
+        function parseEmployeeIds(text) {
+            if (!text) return [];
+
+            return text
+                .split(/[\n,;|\t]+/)
+                .map(id => id.trim())
+                .filter(id => id.length > 0 && id.length <= 20)
+                .filter((id, index, array) => array.indexOf(id) === index);
+        }
+
+        function parseUsedPositions(text) {
+            if (!text) return [];
+
+            return text
+                .split(/[\s,]+/)
+                .map(pos => {
+                    const [row, col] = pos.split(',').map(n => parseInt(n.trim()));
+                    return isNaN(row) || isNaN(col) ? null : { row, col };
+                })
+                .filter(pos => pos !== null);
+        }
+
+        function calculateLabelsPerPage(config) {
+            const {
+                pageWidth, pageHeight,
+                marginLeft, marginRight, marginTop, marginBottom,
+                labelWidth, labelHeight,
+                horizontalSpacing, verticalSpacing
+            } = config;
+
+            const availableWidth = pageWidth - marginLeft - marginRight;
+            const availableHeight = pageHeight - marginTop - marginBottom;
+
+            // Calculate labels per row
+            let labelsPerRow;
+            if (horizontalSpacing <= 0) {
+                // When spacing is 0 or negative, calculate based on label width only
+                labelsPerRow = Math.floor(availableWidth / labelWidth);
+            } else {
+                labelsPerRow = Math.floor((availableWidth + horizontalSpacing) / (labelWidth + horizontalSpacing));
+            }
+
+            // Calculate labels per column
+            let labelsPerColumn;
+            if (verticalSpacing <= 0) {
+                // When spacing is 0 or negative, calculate based on label height only
+                labelsPerColumn = Math.floor(availableHeight / labelHeight);
+            } else {
+                labelsPerColumn = Math.floor((availableHeight + verticalSpacing) / (labelHeight + verticalSpacing));
+            }
+
+            return {
+                labelsPerRow: Math.max(1, labelsPerRow),
+                labelsPerColumn: Math.max(1, labelsPerColumn)
+            };
+        }
+
+        function generateLabelLayout(employeeIds, config) {
+            const { labelsPerRow, labelsPerColumn, startRow, startColumn, usedPositions } = config;
+
+            if (employeeIds.length === 0) {
+                return [];
+            }
+
+            // Calculate available positions per page considering starting position and used positions
+            const totalPositionsPerPage = labelsPerRow * labelsPerColumn;
+            const usedPositionsSet = new Set(usedPositions.map(pos => `${pos.row}-${pos.col}`));
+
+            // Calculate how many positions are available on the first page
+            let availablePositionsFirstPage = 0;
+            for (let row = startRow; row < labelsPerColumn; row++) {
+                for (let col = (row === startRow ? startColumn : 0); col < labelsPerRow; col++) {
+                    if (!usedPositionsSet.has(`${row}-${col}`)) {
+                        availablePositionsFirstPage++;
+                    }
+                }
+            }
+
+            // If no available positions, return empty
+            if (availablePositionsFirstPage === 0) {
+                return [];
+            }
+
+            const pages = [];
+            let remainingEmployees = [...employeeIds];
+            let pageIndex = 0;
+
+            while (remainingEmployees.length > 0) {
+                // For first page, use available positions considering start position and used positions
+                // For subsequent pages, use all positions (but only if we actually need them)
+                const availablePositions = pageIndex === 0 ? availablePositionsFirstPage : totalPositionsPerPage;
+                const employeesForThisPage = remainingEmployees.splice(0, Math.min(availablePositions, remainingEmployees.length));
+
+                if (employeesForThisPage.length > 0) {
+                    const labels = generateLabelsForPage(employeesForThisPage, config, pageIndex === 0);
+
+                    // Only add page if it has actual labels
+                    if (labels.length > 0) {
+                        pages.push({
+                            pageIndex: pageIndex,
+                            labels: labels,
+                            totalLabels: employeesForThisPage.length
+                        });
+                    }
+                }
+
+                pageIndex++;
+
+                // Safety check to prevent infinite loops
+                if (pageIndex > 100) {
+                    console.error('Too many pages generated, breaking loop');
+                    break;
+                }
+            }
+
+            return pages;
+        }
+
+        function generateLabelsForPage(employeeIds, config, isFirstPage = false) {
+            const {
+                labelsPerRow, labelsPerColumn,
+                labelWidth, labelHeight,
+                marginLeft, marginTop,
+                horizontalSpacing, verticalSpacing,
+                prefix, suffix, startRow, startColumn,
+                usedPositions
+            } = config;
+
+            const labels = [];
+            const usedPositionsSet = new Set(
+                usedPositions.map(pos => `${pos.row}-${pos.col}`)
+            );
+
+            // For first page, start from startRow/startColumn
+            // For subsequent pages, start from 0,0
+            let currentRow = isFirstPage ? startRow : 0;
+            let currentCol = isFirstPage ? startColumn : 0;
+            let employeeIndex = 0;
+
+            while (employeeIndex < employeeIds.length) {
+                // Skip used positions (only on first page)
+                if (isFirstPage && usedPositionsSet.has(`${currentRow}-${currentCol}`)) {
+                    currentCol++;
+                    if (currentCol >= labelsPerRow) {
+                        currentCol = 0;
+                        currentRow++;
+                    }
+                    continue;
+                }
+
+                // Check if we're within bounds
+                if (currentRow >= labelsPerColumn) {
+                    break;
+                }
+
+                const employeeId = employeeIds[employeeIndex];
+                const x = marginLeft + currentCol * (labelWidth + horizontalSpacing);
+                const y = marginTop + currentRow * (labelHeight + verticalSpacing);
+
+                labels.push({
+                    id: `${currentRow}-${currentCol}`,
+                    text: `${prefix}${employeeId}${suffix}`,
+                    employeeId: employeeId,
+                    position: { x, y },
+                    dimensions: { width: labelWidth, height: labelHeight },
+                    row: currentRow,
+                    col: currentCol
+                });
+
+                employeeIndex++;
+                currentCol++;
+                if (currentCol >= labelsPerRow) {
+                    currentCol = 0;
+                    currentRow++;
+                }
+            }
+
+            return labels;
+        }
+
+        function generateLabelStyles(label, config, dpi = 96) {
+            const { position, dimensions } = label;
+            const {
+                fontSize, fontFamily, fontWeight, textAlign,
+                textColor, backgroundColor, borderColor, borderWidth
+            } = config;
+
+            return {
+                position: 'absolute',
+                left: `${mmToPx(position.x, dpi)}px`,
+                top: `${mmToPx(position.y, dpi)}px`,
+                width: `${mmToPx(dimensions.width, dpi)}px`,
+                height: `${mmToPx(dimensions.height, dpi)}px`,
+                fontSize: `${fontSize}pt`,
+                fontFamily: fontFamily,
+                fontWeight: fontWeight,
+                textAlign: textAlign,
+                color: textColor,
+                backgroundColor: backgroundColor,
+                border: `${borderWidth}px solid ${borderColor}`,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: textAlign === 'left' ? 'flex-start' :
+                              textAlign === 'right' ? 'flex-end' : 'center',
+                padding: '2px',
+                overflow: 'hidden',
+                boxSizing: 'border-box'
+            };
+        }
+
+        function generatePageStyles(config, dpi = 96) {
+            const { pageWidth, pageHeight } = config;
+
+            return {
+                width: `${mmToPx(pageWidth, dpi)}px`,
+                height: `${mmToPx(pageHeight, dpi)}px`,
+                position: 'relative',
+                backgroundColor: 'white',
+                margin: '0 auto',
+                boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
+                marginBottom: '20px'
+            };
+        }
+
+        // Update functions
+        function updateEmployeeIds() {
+            const input = document.getElementById('employeeInput');
+            const newIds = parseEmployeeIds(input.value);
+
+            appState.employeeIds = newIds;
+            appState.currentPage = 0;
+
+            updateEmployeeCount();
+            updatePreview();
+        }
+
+        function updateEmployeeCount() {
+            const countEl = document.getElementById('employeeCount');
+            const count = appState.employeeIds.length;
+
+            if (count > 0) {
+                countEl.textContent = `${count} employee${count !== 1 ? 's' : ''} entered`;
+                countEl.classList.remove('hidden');
+            } else {
+                countEl.classList.add('hidden');
+            }
+        }
+
+        function updateConfig() {
+            // Get values from form
+            const config = appState.config;
+
+            // Page settings
+            const paperSize = document.getElementById('paperSize').value;
+            if (paperSize !== 'Custom') {
+                config.pageWidth = PAPER_SIZES[paperSize].width;
+                config.pageHeight = PAPER_SIZES[paperSize].height;
+                document.getElementById('pageWidth').value = config.pageWidth;
+                document.getElementById('pageHeight').value = config.pageHeight;
+            } else {
+                config.pageWidth = parseFloat(document.getElementById('pageWidth').value) || 210;
+                config.pageHeight = parseFloat(document.getElementById('pageHeight').value) || 297;
+            }
+
+            // Label dimensions
+            config.labelWidth = parseFloat(document.getElementById('labelWidth').value) || 50;
+            config.labelHeight = parseFloat(document.getElementById('labelHeight').value) || 25;
+
+            // Spacing (allow negative values)
+            config.horizontalSpacing = parseFloat(document.getElementById('horizontalSpacing').value);
+            config.verticalSpacing = parseFloat(document.getElementById('verticalSpacing').value);
+
+            // Handle NaN values
+            if (isNaN(config.horizontalSpacing)) config.horizontalSpacing = 5;
+            if (isNaN(config.verticalSpacing)) config.verticalSpacing = 3;
+
+            // Margins
+            config.marginTop = parseFloat(document.getElementById('marginTop').value) || 10;
+            config.marginBottom = parseFloat(document.getElementById('marginBottom').value) || 10;
+            config.marginLeft = parseFloat(document.getElementById('marginLeft').value) || 10;
+            config.marginRight = parseFloat(document.getElementById('marginRight').value) || 10;
+
+            // Style
+            config.fontSize = parseInt(document.getElementById('fontSize').value) || 12;
+            config.fontFamily = document.getElementById('fontFamily').value || 'Arial';
+            config.fontWeight = document.getElementById('fontWeight').value || 'normal';
+            config.textAlign = document.getElementById('textAlign').value || 'center';
+            config.textColor = document.getElementById('textColor').value || '#000000';
+            config.backgroundColor = document.getElementById('backgroundColor').value || '#ffffff';
+
+            // Text formatting
+            config.prefix = document.getElementById('prefix').value || '';
+            config.suffix = document.getElementById('suffix').value || '';
+
+            // Position
+            config.startRow = parseInt(document.getElementById('startRow').value) || 0;
+            config.startColumn = parseInt(document.getElementById('startColumn').value) || 0;
+            config.usedPositions = parseUsedPositions(document.getElementById('usedPositions').value);
+
+            // Calculate labels per page
+            const calculated = calculateLabelsPerPage(config);
+            config.labelsPerRow = calculated.labelsPerRow;
+            config.labelsPerColumn = calculated.labelsPerColumn;
+
+            updateCalculatedInfo();
+            updatePreview();
+
+            // Auto-save settings
+            saveSettings(config);
+        }
+
+        function updateCalculatedInfo() {
+            const config = appState.config;
+            document.getElementById('labelsPerRow').textContent = config.labelsPerRow;
+            document.getElementById('labelsPerColumn').textContent = config.labelsPerColumn;
+            document.getElementById('totalPerPage').textContent = config.labelsPerRow * config.labelsPerColumn;
+        }
+
+        function updatePreview() {
+            if (appState.employeeIds.length === 0) {
+                document.getElementById('previewArea').innerHTML = `
+                    <div class="loading">
+                        <div class="spinner"></div>
+                        Enter employee IDs to see preview
+                    </div>
+                `;
+                updatePageControls();
+                return;
+            }
+
+            // Generate label pages
+            appState.labelPages = generateLabelLayout(appState.employeeIds, appState.config);
+
+            // Ensure current page is valid
+            if (appState.currentPage >= appState.labelPages.length) {
+                appState.currentPage = Math.max(0, appState.labelPages.length - 1);
+            }
+
+            renderCurrentPage();
+            updatePageControls();
+            updateDistributionInfo();
+        }
+
+        function updateDistributionInfo() {
+            const distributionInfo = document.getElementById('distributionInfo');
+            const distributionDetails = document.getElementById('distributionDetails');
+
+            if (appState.labelPages.length > 1) {
+                let detailsHTML = '';
+                let totalLabels = 0;
+                const config = appState.config;
+
+                // Calculate why multiple pages were created
+                const totalPositionsPerPage = config.labelsPerRow * config.labelsPerColumn;
+                const usedPositionsCount = config.usedPositions.length;
+                const startPositionOffset = (config.startRow * config.labelsPerRow) + config.startColumn;
+                const availableFirstPage = totalPositionsPerPage - startPositionOffset - usedPositionsCount;
+
+                detailsHTML += `<strong>Why multiple pages?</strong><br>`;
+                detailsHTML += `Total positions per page: ${totalPositionsPerPage}<br>`;
+                detailsHTML += `Starting position: Row ${config.startRow + 1}, Column ${config.startColumn + 1}<br>`;
+                if (usedPositionsCount > 0) {
+                    detailsHTML += `Used positions: ${usedPositionsCount}<br>`;
+                }
+                detailsHTML += `Available on first page: ${availableFirstPage}<br>`;
+                detailsHTML += `Total employee IDs: ${appState.employeeIds.length}<br><br>`;
+
+                appState.labelPages.forEach((page, index) => {
+                    detailsHTML += `Page ${index + 1}: ${page.totalLabels} labels<br>`;
+                    totalLabels += page.totalLabels;
+                });
+
+                detailsHTML += `<strong>Total: ${totalLabels} labels across ${appState.labelPages.length} pages</strong>`;
+                distributionDetails.innerHTML = detailsHTML;
+                distributionInfo.classList.remove('hidden');
+            } else {
+                distributionInfo.classList.add('hidden');
+            }
+        }
+
+        function renderCurrentPage() {
+            const previewArea = document.getElementById('previewArea');
+
+            if (appState.labelPages.length === 0) {
+                previewArea.innerHTML = `
+                    <div class="loading">
+                        <div class="spinner"></div>
+                        No labels to display
+                    </div>
+                `;
+                return;
+            }
+
+            const currentPageData = appState.labelPages[appState.currentPage];
+            const dpi = 96 * appState.zoom;
+
+            // Create page container
+            const pageContainer = document.createElement('div');
+            pageContainer.className = 'page-preview';
+
+            // Apply page styles
+            const pageStyles = generatePageStyles(appState.config, dpi);
+            Object.assign(pageContainer.style, pageStyles);
+            pageContainer.style.transform = `scale(${appState.zoom})`;
+            pageContainer.style.transformOrigin = 'top center';
+
+            // Add grid lines for reference (screen only)
+            const config = appState.config;
+            for (let row = 0; row < config.labelsPerColumn; row++) {
+                for (let col = 0; col < config.labelsPerRow; col++) {
+                    const x = config.marginLeft + col * (config.labelWidth + config.horizontalSpacing);
+                    const y = config.marginTop + row * (config.labelHeight + config.verticalSpacing);
+
+                    const gridCell = document.createElement('div');
+                    gridCell.className = 'label-grid screen-only';
+                    gridCell.style.position = 'absolute';
+                    gridCell.style.left = `${mmToPx(x, dpi)}px`;
+                    gridCell.style.top = `${mmToPx(y, dpi)}px`;
+                    gridCell.style.width = `${mmToPx(config.labelWidth, dpi)}px`;
+                    gridCell.style.height = `${mmToPx(config.labelHeight, dpi)}px`;
+                    gridCell.style.border = '1px dashed #d1d5db';
+                    gridCell.style.opacity = '0.3';
+                    gridCell.style.pointerEvents = 'none';
+
+                    // Add row/column numbers for reference
+                    const labelText = document.createElement('span');
+                    labelText.textContent = `${row + 1},${col + 1}`;
+                    labelText.style.fontSize = '10px';
+                    labelText.style.color = '#9ca3af';
+                    labelText.style.position = 'absolute';
+                    labelText.style.top = '2px';
+                    labelText.style.left = '2px';
+                    gridCell.appendChild(labelText);
+
+                    pageContainer.appendChild(gridCell);
+                }
+            }
+
+            // Add labels
+            currentPageData.labels.forEach(label => {
+                const labelEl = document.createElement('div');
+                labelEl.className = 'label';
+                labelEl.textContent = label.text;
+
+                // Apply label styles
+                const labelStyles = generateLabelStyles(label, appState.config, dpi);
+                Object.assign(labelEl.style, labelStyles);
+
+                pageContainer.appendChild(labelEl);
+            });
+
+            previewArea.innerHTML = '';
+            previewArea.appendChild(pageContainer);
+        }
+
+        function updatePageControls() {
+            const totalPages = appState.labelPages.length;
+            const currentPage = appState.currentPage + 1;
+
+            // Calculate total labels and labels on current page
+            const totalLabels = appState.employeeIds.length;
+            const currentPageLabels = totalPages > 0 ? appState.labelPages[appState.currentPage].totalLabels : 0;
+
+            document.getElementById('pageInfo').textContent = `Page ${currentPage} of ${totalPages} (${currentPageLabels} labels)`;
+            document.getElementById('prevPage').disabled = appState.currentPage <= 0;
+            document.getElementById('nextPage').disabled = appState.currentPage >= totalPages - 1;
+            document.getElementById('zoomLevel').textContent = `${Math.round(appState.zoom * 100)}%`;
+
+            // Show distribution info if multiple pages
+            if (totalPages > 1) {
+                console.log('Label distribution:');
+                appState.labelPages.forEach((page, index) => {
+                    console.log(`Page ${index + 1}: ${page.totalLabels} labels`);
+                });
+            }
+        }
+
+        function changePage(direction) {
+            const newPage = appState.currentPage + direction;
+            if (newPage >= 0 && newPage < appState.labelPages.length) {
+                appState.currentPage = newPage;
+                renderCurrentPage();
+                updatePageControls();
+            }
+        }
+
+        function changeZoom(direction) {
+            const zoomLevels = [0.25, 0.5, 0.75, 1.0, 1.25, 1.5, 2.0];
+            const currentIndex = zoomLevels.indexOf(appState.zoom);
+            let newIndex = currentIndex + direction;
+
+            if (newIndex < 0) newIndex = 0;
+            if (newIndex >= zoomLevels.length) newIndex = zoomLevels.length - 1;
+
+            appState.zoom = zoomLevels[newIndex];
+            renderCurrentPage();
+            updatePageControls();
+        }
+
+        function resetToDefaults() {
+            // Reset config to defaults
+            appState.config = { ...DEFAULT_CONFIG };
+
+            // Update form values
+            populateFormFromConfig();
+
+            // Update preview and save
+            updateConfig();
+        }
+
+        function populateFormFromConfig() {
+            const config = appState.config;
+
+            document.getElementById('paperSize').value = config.pageSize;
+            document.getElementById('pageWidth').value = config.pageWidth;
+            document.getElementById('pageHeight').value = config.pageHeight;
+            document.getElementById('labelWidth').value = config.labelWidth;
+            document.getElementById('labelHeight').value = config.labelHeight;
+            document.getElementById('horizontalSpacing').value = config.horizontalSpacing;
+            document.getElementById('verticalSpacing').value = config.verticalSpacing;
+            document.getElementById('marginTop').value = config.marginTop;
+            document.getElementById('marginBottom').value = config.marginBottom;
+            document.getElementById('marginLeft').value = config.marginLeft;
+            document.getElementById('marginRight').value = config.marginRight;
+            document.getElementById('fontSize').value = config.fontSize;
+            document.getElementById('fontFamily').value = config.fontFamily;
+            document.getElementById('fontWeight').value = config.fontWeight;
+            document.getElementById('textAlign').value = config.textAlign;
+            document.getElementById('textColor').value = config.textColor;
+            document.getElementById('backgroundColor').value = config.backgroundColor;
+            document.getElementById('prefix').value = config.prefix;
+            document.getElementById('suffix').value = config.suffix;
+            document.getElementById('startRow').value = config.startRow;
+            document.getElementById('startColumn').value = config.startColumn;
+            document.getElementById('usedPositions').value = config.usedPositions.map(pos => `${pos.row},${pos.col}`).join(' ');
+        }
+
+        // Quick margin preset function
+        function setMarginPreset(preset) {
+            let margins;
+            let message;
+
+            switch(preset) {
+                case 'zero':
+                    margins = { top: 0, bottom: 0, left: 0, right: 0 };
+                    message = 'Zero margins applied (0mm). If printer still adds margins, try "Compensate" preset.';
+                    break;
+                case 'minimal':
+                    margins = { top: 5, bottom: 5, left: 5, right: 5 };
+                    message = 'Minimal margins applied (5mm all sides).';
+                    break;
+                case 'standard':
+                    margins = { top: 10, bottom: 10, left: 10, right: 10 };
+                    message = 'Standard margins applied (10mm all sides).';
+                    break;
+                case 'compensate':
+                    margins = { top: -3, bottom: -3, left: -3, right: -3 };
+                    message = 'Compensate margins applied (-3mm) to offset printer built-in margins.';
+                    break;
+                default:
+                    return;
+            }
+
+            // Update form fields
+            document.getElementById('marginTop').value = margins.top;
+            document.getElementById('marginBottom').value = margins.bottom;
+            document.getElementById('marginLeft').value = margins.left;
+            document.getElementById('marginRight').value = margins.right;
+
+            // Update configuration and save
+            updateConfig();
+
+            // Show feedback message
+            showMessage(message, 'success');
+        }
+
+        // Smart print instructions based on browser detection
+        function getPrintInstructions(totalPages, totalLabels) {
+            const userAgent = navigator.userAgent.toLowerCase();
+            const isChrome = userAgent.includes('chrome');
+            const isFirefox = userAgent.includes('firefox');
+            const isEdge = userAgent.includes('edge');
+            const isSafari = userAgent.includes('safari') && !userAgent.includes('chrome');
+
+            let baseMessage;
+            if (totalPages === 1) {
+                baseMessage = `Printing ${totalLabels} labels on 1 page.`;
+            } else {
+                baseMessage = `Printing ${totalLabels} labels on ${totalPages} pages.`;
+            }
+
+            let browserTip = '';
+            if (isChrome) {
+                browserTip = ' Chrome: Set margins to "None" and scale to "Default (100%)".';
+            } else if (isFirefox) {
+                browserTip = ' Firefox: Set margins to "None" and disable "Shrink to fit".';
+            } else if (isEdge) {
+                browserTip = ' Edge: Set margins to "None" and scale to "100%".';
+            } else if (isSafari) {
+                browserTip = ' Safari: Set margins to "Minimum" and scale to "100%".';
+            } else {
+                browserTip = ' Set printer to "Actual Size" (100% scale) and "No margins".';
+            }
+
+            return baseMessage + browserTip;
+        }
+
+        function clearAll() {
+            document.getElementById('employeeInput').value = '';
+            appState.employeeIds = [];
+            appState.currentPage = 0;
+            updateEmployeeCount();
+            updatePreview();
+        }
+
+        function loadSample() {
+            const sampleIds = [];
+            for (let i = 1; i <= 30; i++) {
+                sampleIds.push(`EMP${i.toString().padStart(4, '0')}`);
+            }
+
+            document.getElementById('employeeInput').value = sampleIds.join('\n');
+            updateEmployeeIds();
+        }
+
+        function printLabels() {
+            if (appState.labelPages.length === 0) {
+                showMessage('No labels to print. Please enter employee IDs first.', 'error');
+                return;
+            }
+
+            const totalPages = appState.labelPages.length;
+            const totalLabels = appState.employeeIds.length;
+
+            // Show printing instructions with device-specific tips
+            const printInstructions = getPrintInstructions(totalPages, totalLabels);
+            showMessage(printInstructions, 'success');
+
+            // Create a temporary container for all pages
+            const printContainer = document.createElement('div');
+            printContainer.className = 'print-area';
+            printContainer.style.position = 'absolute';
+            printContainer.style.left = '-9999px';
+            printContainer.style.top = '0';
+
+            // Generate all pages
+            appState.labelPages.forEach((pageData, pageIndex) => {
+                const pageContainer = document.createElement('div');
+                pageContainer.className = 'page-preview';
+
+                // Apply page styles without zoom
+                const pageStyles = generatePageStyles(appState.config, 96);
+                Object.assign(pageContainer.style, pageStyles);
+                pageContainer.style.transform = 'none';
+                pageContainer.style.boxShadow = 'none';
+                pageContainer.style.marginBottom = '0';
+
+                // Add page break for all pages except the last one
+                if (pageIndex < appState.labelPages.length - 1) {
+                    pageContainer.style.pageBreakAfter = 'always';
+                }
+
+                // Add labels for this page
+                pageData.labels.forEach(label => {
+                    const labelEl = document.createElement('div');
+                    labelEl.className = 'label';
+                    labelEl.textContent = label.text;
+
+                    // Apply label styles without zoom
+                    const labelStyles = generateLabelStyles(label, appState.config, 96);
+                    Object.assign(labelEl.style, labelStyles);
+                    labelEl.style.border = '1px solid #000';
+                    labelEl.style.backgroundColor = 'white';
+
+                    pageContainer.appendChild(labelEl);
+                });
+
+                printContainer.appendChild(pageContainer);
+            });
+
+            // Add to document
+            document.body.appendChild(printContainer);
+
+            // Replace current print area temporarily
+            const originalPrintArea = document.querySelector('.print-area');
+            originalPrintArea.style.display = 'none';
+            printContainer.style.position = 'static';
+            printContainer.style.left = 'auto';
+
+            // Print
+            setTimeout(() => {
+                window.print();
+
+                // Restore original view
+                setTimeout(() => {
+                    document.body.removeChild(printContainer);
+                    originalPrintArea.style.display = 'block';
+                }, 1000);
+            }, 100);
+        }
+
+        // CSV handling
+        function handleCSVFile(file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const csvText = e.target.result;
+                parseCSVText(csvText);
+            };
+            reader.readAsText(file);
+        }
+
+        function parseCSVText(csvText) {
+            try {
+                const lines = csvText.split('\n').filter(line => line.trim());
+                if (lines.length === 0) {
+                    throw new Error('CSV file is empty');
+                }
+
+                // Try to detect employee ID column
+                const headers = lines[0].split(',').map(h => h.trim().toLowerCase());
+                let employeeIdColumn = 0;
+
+                // Look for common employee ID column names
+                const possibleColumns = ['employee_id', 'emp_id', 'id', 'employee', 'empid'];
+                for (let i = 0; i < headers.length; i++) {
+                    if (possibleColumns.some(col => headers[i].includes(col))) {
+                        employeeIdColumn = i;
+                        break;
+                    }
+                }
+
+                // Extract employee IDs
+                const employeeIds = [];
+                for (let i = 1; i < lines.length; i++) {
+                    const columns = lines[i].split(',');
+                    if (columns.length > employeeIdColumn) {
+                        const id = columns[employeeIdColumn].trim().replace(/"/g, '');
+                        if (id && id.length > 0 && id.length <= 20) {
+                            employeeIds.push(id);
+                        }
+                    }
+                }
+
+                if (employeeIds.length === 0) {
+                    throw new Error('No valid employee IDs found in CSV');
+                }
+
+                // Update the input
+                document.getElementById('employeeInput').value = employeeIds.join('\n');
+                updateEmployeeIds();
+
+                // Show success message
+                showMessage(`Successfully imported ${employeeIds.length} employee IDs from CSV`, 'success');
+
+            } catch (error) {
+                showMessage(`Error parsing CSV: ${error.message}`, 'error');
+            }
+        }
+
+        function showMessage(message, type) {
+            // Remove existing messages
+            const existingMessages = document.querySelectorAll('.message');
+            existingMessages.forEach(msg => msg.remove());
+
+            // Create new message
+            const messageEl = document.createElement('div');
+            messageEl.className = `message ${type}`;
+            messageEl.textContent = message;
+            messageEl.style.position = 'fixed';
+            messageEl.style.top = '20px';
+            messageEl.style.right = '20px';
+            messageEl.style.zIndex = '1000';
+            messageEl.style.padding = '12px 20px';
+            messageEl.style.borderRadius = '6px';
+            messageEl.style.fontWeight = '500';
+
+            if (type === 'success') {
+                messageEl.style.backgroundColor = '#f0fdf4';
+                messageEl.style.color = '#166534';
+                messageEl.style.border = '1px solid #bbf7d0';
+            } else {
+                messageEl.style.backgroundColor = '#fef2f2';
+                messageEl.style.color = '#dc2626';
+                messageEl.style.border = '1px solid #fecaca';
+            }
+
+            document.body.appendChild(messageEl);
+
+            // Auto remove after 3 seconds
+            setTimeout(() => {
+                messageEl.remove();
+            }, 3000);
+        }
+
+        // Event Listeners
+        document.addEventListener('DOMContentLoaded', function() {
+            // Tab switching
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.addEventListener('click', function() {
+                    const tabId = this.dataset.tab;
+
+                    // Update active tab
+                    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                    this.classList.add('active');
+
+                    // Update active content
+                    document.querySelectorAll('.tab-content').forEach(content => {
+                        content.classList.remove('active');
+                    });
+                    document.getElementById(tabId).classList.add('active');
+                });
+            });
+
+            // Employee input
+            document.getElementById('employeeInput').addEventListener('input', updateEmployeeIds);
+
+            // Configuration inputs
+            const configInputs = [
+                'paperSize', 'pageWidth', 'pageHeight', 'labelWidth', 'labelHeight',
+                'horizontalSpacing', 'verticalSpacing', 'marginTop', 'marginBottom',
+                'marginLeft', 'marginRight', 'fontSize', 'fontFamily', 'fontWeight',
+                'textAlign', 'textColor', 'backgroundColor', 'prefix', 'suffix',
+                'startRow', 'startColumn', 'usedPositions'
+            ];
+
+            configInputs.forEach(inputId => {
+                const element = document.getElementById(inputId);
+                if (element) {
+                    element.addEventListener('change', updateConfig);
+                    element.addEventListener('input', updateConfig);
+                }
+            });
+
+            // Buttons
+            document.getElementById('clearBtn').addEventListener('click', clearAll);
+            document.getElementById('sampleBtn').addEventListener('click', loadSample);
+            document.getElementById('resetBtn').addEventListener('click', resetToDefaults);
+            document.getElementById('updateBtn').addEventListener('click', updateConfig);
+            document.getElementById('printBtn').addEventListener('click', printLabels);
+
+            // Page navigation
+            document.getElementById('prevPage').addEventListener('click', () => changePage(-1));
+            document.getElementById('nextPage').addEventListener('click', () => changePage(1));
+
+            // Zoom controls
+            document.getElementById('zoomIn').addEventListener('click', () => changeZoom(1));
+            document.getElementById('zoomOut').addEventListener('click', () => changeZoom(-1));
+
+            // File upload
+            const fileInput = document.getElementById('csvFile');
+            const dropZone = document.getElementById('fileDropZone');
+
+            fileInput.addEventListener('change', function(e) {
+                if (e.target.files.length > 0) {
+                    handleCSVFile(e.target.files[0]);
+                }
+            });
+
+            dropZone.addEventListener('click', () => fileInput.click());
+
+            // Drag and drop
+            dropZone.addEventListener('dragover', function(e) {
+                e.preventDefault();
+                this.classList.add('drag-over');
+            });
+
+            dropZone.addEventListener('dragleave', function(e) {
+                e.preventDefault();
+                this.classList.remove('drag-over');
+            });
+
+            dropZone.addEventListener('drop', function(e) {
+                e.preventDefault();
+                this.classList.remove('drag-over');
+
+                const files = e.dataTransfer.files;
+                if (files.length > 0 && files[0].type === 'text/csv') {
+                    handleCSVFile(files[0]);
+                } else {
+                    showMessage('Please drop a CSV file', 'error');
+                }
+            });
+
+            // Keyboard shortcuts
+            document.addEventListener('keydown', function(e) {
+                if (e.ctrlKey || e.metaKey) {
+                    switch(e.key) {
+                        case 'p':
+                            e.preventDefault();
+                            printLabels();
+                            break;
+                        case 'r':
+                            e.preventDefault();
+                            resetToDefaults();
+                            break;
+                    }
+                }
+
+                // Page navigation with arrow keys
+                if (e.target.tagName !== 'INPUT' && e.target.tagName !== 'TEXTAREA') {
+                    switch(e.key) {
+                        case 'ArrowLeft':
+                            changePage(-1);
+                            break;
+                        case 'ArrowRight':
+                            changePage(1);
+                            break;
+                        case '+':
+                        case '=':
+                            changeZoom(1);
+                            break;
+                        case '-':
+                            changeZoom(-1);
+                            break;
+                    }
+                }
+            });
+
+            // Initialize
+            populateFormFromConfig(); // Load saved settings into form
+            updateCalculatedInfo();
+            updatePreview();
+
+            // Show welcome message
+            setTimeout(() => {
+                const hasSettings = localStorage.getItem(SETTINGS_STORAGE_KEY);
+                if (hasSettings) {
+                    showMessage('Settings loaded! Enter employee IDs or upload a CSV file to get started.', 'success');
+                } else {
+                    showMessage('Welcome! Enter employee IDs or upload a CSV file to get started.', 'success');
+                }
+            }, 1000);
+        });
+    </script>
+</body>
+</html>
