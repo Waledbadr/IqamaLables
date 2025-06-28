@@ -146,6 +146,16 @@ export const FONT_FAMILIES = [
   'Georgia',
   'Trebuchet MS',
   'Comic Sans MS',
+  'Aptos Black',
+  'Aptos',
+  'Calibri',
+  'Segoe UI',
+  'Tahoma',
+  'Impact',
+  'Roboto',
+  'Open Sans',
+  'Montserrat',
+  'Inter',
 ];
 
 export const FONT_WEIGHTS = [

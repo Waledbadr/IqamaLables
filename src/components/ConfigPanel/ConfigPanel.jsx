@@ -30,6 +30,7 @@ const ConfigPanel = ({ config, onConfigChange, isLoading, onLoadingChange }) => 
   const [selectedLabelPreset, setSelectedLabelPreset] = useState('custom');
   const [showSaveLabelDialog, setShowSaveLabelDialog] = useState(false);
   const [newLabelPresetName, setNewLabelPresetName] = useState('');
+  const [saveStyleSettings, setSaveStyleSettings] = useState(true);
   const [error, setError] = useState('');
 
   // Handle configuration changes
@@ -98,14 +99,17 @@ const ConfigPanel = ({ config, onConfigChange, isLoading, onLoadingChange }) => 
     if (presetKey === 'custom') return;
 
     let preset;
+    let includesStyle = false;
+    
     if (LABEL_PRESETS[presetKey]) {
-      // Built-in preset
+      // Built-in preset (layout only)
       preset = LABEL_PRESETS[presetKey];
     } else {
       // Custom preset
       const customPreset = customLabelPresets.find(p => p.id === presetKey);
       if (customPreset) {
         preset = customPreset.config;
+        includesStyle = customPreset.includesStyle || false;
       }
     }
 
@@ -117,6 +121,22 @@ const ConfigPanel = ({ config, onConfigChange, isLoading, onLoadingChange }) => 
         pageWidth: paperSize.width,
         pageHeight: paperSize.height,
       };
+      
+      // Only apply style settings if they were saved with the preset
+      if (!includesStyle) {
+        // Keep current style settings for built-in presets
+        newConfig.fontSize = config.fontSize;
+        newConfig.fontFamily = config.fontFamily;
+        newConfig.fontWeight = config.fontWeight;
+        newConfig.textAlign = config.textAlign;
+        newConfig.textColor = config.textColor;
+        newConfig.backgroundColor = config.backgroundColor;
+        newConfig.borderColor = config.borderColor;
+        newConfig.borderWidth = config.borderWidth;
+        newConfig.prefix = config.prefix;
+        newConfig.suffix = config.suffix;
+      }
+      
       onConfigChange(newConfig);
     }
   }, [config, onConfigChange, customLabelPresets]);
@@ -147,7 +167,7 @@ const ConfigPanel = ({ config, onConfigChange, isLoading, onLoadingChange }) => 
       return;
     }
 
-    // Extract only label-related configuration
+    // Base label layout configuration
     const labelConfig = {
       pageSize: config.pageSize,
       pageWidth: config.pageWidth,
@@ -164,10 +184,25 @@ const ConfigPanel = ({ config, onConfigChange, isLoading, onLoadingChange }) => 
       verticalSpacing: config.verticalSpacing,
     };
 
+    // Add style settings if enabled
+    if (saveStyleSettings) {
+      labelConfig.fontSize = config.fontSize;
+      labelConfig.fontFamily = config.fontFamily;
+      labelConfig.fontWeight = config.fontWeight;
+      labelConfig.textAlign = config.textAlign;
+      labelConfig.textColor = config.textColor;
+      labelConfig.backgroundColor = config.backgroundColor;
+      labelConfig.borderColor = config.borderColor;
+      labelConfig.borderWidth = config.borderWidth;
+      labelConfig.prefix = config.prefix;
+      labelConfig.suffix = config.suffix;
+    }
+
     const newPreset = {
       id: generatePresetId(),
       name: newLabelPresetName.trim(),
       config: labelConfig,
+      includesStyle: saveStyleSettings,
       isBuiltIn: false,
       createdAt: new Date().toISOString(),
     };
@@ -178,8 +213,9 @@ const ConfigPanel = ({ config, onConfigChange, isLoading, onLoadingChange }) => 
     setSelectedLabelPreset(newPreset.id);
     setNewLabelPresetName('');
     setShowSaveLabelDialog(false);
+    setSaveStyleSettings(true);
     setError('');
-  }, [config, customLabelPresets, newLabelPresetName]);
+  }, [config, customLabelPresets, newLabelPresetName, saveStyleSettings]);
 
   const handleDeleteLabelPreset = useCallback((presetId) => {
     if (window.confirm('هل أنت متأكد من حذف هذا القالب؟ / Are you sure you want to delete this preset?')) {
@@ -265,7 +301,7 @@ const ConfigPanel = ({ config, onConfigChange, isLoading, onLoadingChange }) => 
                 ))}
                 {customLabelPresets.map((preset) => (
                   <option key={preset.id} value={preset.id}>
-                    {preset.name} (مخصص)
+                    {preset.name} {preset.includesStyle ? '🎨' : '📐'} (مخصص)
                   </option>
                 ))}
               </select>
@@ -273,7 +309,7 @@ const ConfigPanel = ({ config, onConfigChange, isLoading, onLoadingChange }) => 
               <button
                 onClick={() => setShowSaveLabelDialog(true)}
                 className="btn-secondary text-sm px-2"
-                title="Save current label settings as preset"
+                title="Save current label settings as preset / حفظ إعدادات الملصق الحالية كقالب"
                 disabled={isLoading}
               >
                 <Save className="w-4 h-4" />
@@ -295,6 +331,32 @@ const ConfigPanel = ({ config, onConfigChange, isLoading, onLoadingChange }) => 
             {error && (
               <div className="bg-red-50 border border-red-200 rounded-md p-2 mt-2">
                 <p className="text-sm text-red-700">{error}</p>
+              </div>
+            )}
+
+            {/* Preset Type Info */}
+            {selectedLabelPreset !== 'custom' && (
+              <div className="text-xs text-gray-600 mt-2 p-2 bg-blue-50 rounded">
+                {LABEL_PRESETS[selectedLabelPreset] ? (
+                  <div>
+                    📐 <strong>قالب جاهز / Built-in Preset:</strong> يحتوي على إعدادات التخطيط فقط
+                    <br />
+                    Contains layout settings only
+                  </div>
+                ) : (
+                  (() => {
+                    const customPreset = customLabelPresets.find(p => p.id === selectedLabelPreset);
+                    return customPreset ? (
+                      <div>
+                        {customPreset.includesStyle ? '🎨' : '📐'} <strong>قالب مخصص / Custom Preset:</strong>{' '}
+                        {customPreset.includesStyle 
+                          ? 'يحتوي على التخطيط والتنسيق / Contains layout and style settings'
+                          : 'يحتوي على إعدادات التخطيط فقط / Contains layout settings only'
+                        }
+                      </div>
+                    ) : null;
+                  })()
+                )}
               </div>
             )}
           </div>
@@ -751,10 +813,36 @@ const ConfigPanel = ({ config, onConfigChange, isLoading, onLoadingChange }) => 
               />
             </div>
 
-            <div className="text-xs text-gray-600 mt-2 mb-4">
-              سيتم حفظ: حجم الورقة، أبعاد الملصقات، الهوامش، والمسافات
-              <br />
-              Will save: page size, label dimensions, margins, and spacing
+            {/* Style Settings Option */}
+            <div className="input-group">
+              <label className="flex items-center space-x-2 rtl:space-x-reverse">
+                <input
+                  type="checkbox"
+                  checked={saveStyleSettings}
+                  onChange={(e) => setSaveStyleSettings(e.target.checked)}
+                  className="form-checkbox h-4 w-4 text-blue-600"
+                />
+                <span className="text-sm">
+                  حفظ إعدادات التنسيق أيضاً / Also save style settings 🎨
+                </span>
+              </label>
+              <p className="text-xs text-gray-500 mt-1">
+                يشمل: الخطوط، الألوان، الحدود، البادئة/اللاحقة
+                <br />
+                Includes: fonts, colors, borders, prefix/suffix
+              </p>
+            </div>
+
+            <div className="text-xs text-gray-600 mt-2 mb-4 p-2 bg-gray-50 rounded">
+              <div className="font-medium mb-1">سيتم حفظ / Will save:</div>
+              <div>📐 التخطيط: حجم الورقة، أبعاد الملصقات، الهوامش، المسافات</div>
+              <div>Layout: page size, label dimensions, margins, spacing</div>
+              {saveStyleSettings && (
+                <>
+                  <div className="mt-1">🎨 التنسيق: الخطوط، الألوان، الحدود، النصوص</div>
+                  <div>Style: fonts, colors, borders, text formatting</div>
+                </>
+              )}
             </div>
 
             <div className="flex justify-end space-x-2 mt-4">
@@ -762,6 +850,7 @@ const ConfigPanel = ({ config, onConfigChange, isLoading, onLoadingChange }) => 
                 onClick={() => {
                   setShowSaveLabelDialog(false);
                   setNewLabelPresetName('');
+                  setSaveStyleSettings(true);
                   setError('');
                 }}
                 className="btn-secondary"

@@ -147,6 +147,20 @@ const getFontName = (fontFamily) => {
     'Times': 'times',
     'Courier New': 'courier',
     'Courier': 'courier',
+    'Verdana': 'helvetica',
+    'Georgia': 'times',
+    'Trebuchet MS': 'helvetica',
+    'Comic Sans MS': 'helvetica',
+    'Aptos Black': 'helvetica',
+    'Aptos': 'helvetica',
+    'Calibri': 'helvetica',
+    'Segoe UI': 'helvetica',
+    'Tahoma': 'helvetica',
+    'Impact': 'helvetica',
+    'Roboto': 'helvetica',
+    'Open Sans': 'helvetica',
+    'Montserrat': 'helvetica',
+    'Inter': 'helvetica',
   };
   
   return fontMap[fontFamily] || 'helvetica';
