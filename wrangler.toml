@@ -3,3 +3,13 @@ compatibility_date = "2024-01-01"
 
 # Cloudflare Pages configuration
 pages_build_output_dir = "dist"
+
+# KV Namespace for storing user presets and configurations
+# Note: You need to create this namespace using:
+# wrangler kv:namespace create "PRESETS"
+# Then update the id below with the generated namespace ID
+
+[[kv_namespaces]]
+binding = "PRESETS"
+id = "YOUR_KV_NAMESPACE_ID"
+preview_id = "YOUR_PREVIEW_KV_NAMESPACE_ID"

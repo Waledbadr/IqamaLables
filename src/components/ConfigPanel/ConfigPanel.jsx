@@ -20,6 +20,8 @@ import {
   parseUsedPositions
 } from '../../utils/labelGenerator.js';
 import ImageAnalyzer from '../ImageAnalyzer/ImageAnalyzer.jsx';
+import CloudSyncManager from '../CloudSyncManager/CloudSyncManager.jsx';
+import { autoSaveToCloud, isCloudSyncEnabled } from '../../utils/cloudSync.js';
 
 const ConfigPanel = ({ config, onConfigChange, isLoading, onLoadingChange }) => {
   const [activeTab, setActiveTab] = useState('layout');
@@ -210,6 +212,12 @@ const ConfigPanel = ({ config, onConfigChange, isLoading, onLoadingChange }) => 
     const updatedPresets = [...customLabelPresets, newPreset];
     setCustomLabelPresets(updatedPresets);
     localStorage.setItem('labelPrinter_customLabelPresets', JSON.stringify(updatedPresets));
+    
+    // Auto-save to cloud if enabled
+    if (isCloudSyncEnabled()) {
+      autoSaveToCloud(updatedPresets);
+    }
+    
     setSelectedLabelPreset(newPreset.id);
     setNewLabelPresetName('');
     setShowSaveLabelDialog(false);
@@ -222,6 +230,11 @@ const ConfigPanel = ({ config, onConfigChange, isLoading, onLoadingChange }) => 
       const updatedPresets = customLabelPresets.filter(p => p.id !== presetId);
       setCustomLabelPresets(updatedPresets);
       localStorage.setItem('labelPrinter_customLabelPresets', JSON.stringify(updatedPresets));
+
+      // Auto-save to cloud if enabled
+      if (isCloudSyncEnabled()) {
+        autoSaveToCloud(updatedPresets);
+      }
 
       if (selectedLabelPreset === presetId) {
         setSelectedLabelPreset('custom');
@@ -268,6 +281,11 @@ const ConfigPanel = ({ config, onConfigChange, isLoading, onLoadingChange }) => 
       const updatedPresets = [...customLabelPresets, ...newPresets];
       setCustomLabelPresets(updatedPresets);
       localStorage.setItem('labelPrinter_customLabelPresets', JSON.stringify(updatedPresets));
+      
+      // Auto-save to cloud if enabled
+      if (isCloudSyncEnabled()) {
+        autoSaveToCloud(updatedPresets);
+      }
       
       setError(`✅ تم استيراد ${newPresets.length} قالب بنجاح! / ${newPresets.length} presets imported successfully!`);
       setTimeout(() => setError(''), 3000);
@@ -653,6 +671,15 @@ const ConfigPanel = ({ config, onConfigChange, isLoading, onLoadingChange }) => 
               <strong>Layout:</strong> {config.labelsPerRow} × {config.labelsPerColumn} = {config.labelsPerRow * config.labelsPerColumn} labels per page
             </p>
           </div>
+
+          {/* Cloud Sync Manager */}
+          <CloudSyncManager 
+            presets={customLabelPresets}
+            onPresetsSync={(syncedPresets) => {
+              setCustomLabelPresets(syncedPresets);
+              localStorage.setItem('labelPrinter_customLabelPresets', JSON.stringify(syncedPresets));
+            }}
+          />
         </div>
       )}
 
