@@ -47,7 +47,7 @@ function App() {
       <div className="min-h-screen bg-gray-50">
         {/* Header */}
         <header className="bg-white shadow-sm border-b border-gray-200">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="mx-auto px-2">
             <div className="flex justify-between items-center py-4">
               <div>
                 <h1 className="text-2xl font-bold text-gray-900">
@@ -75,32 +75,49 @@ function App() {
         </header>
 
         {/* Main Content */}
-        <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            {/* Left Column - Configuration */}
-            <div className="lg:col-span-1 space-y-6">
-              {/* Employee Input */}
-              <EmployeeInput
-                onEmployeeIdsChange={handleEmployeeIdsChange}
-                isLoading={isLoading}
-              />
-
-              {/* Configuration Panel */}
-              <ConfigPanel
-                config={config}
-                onConfigChange={handleConfigChange}
-                onLoadingChange={handleLoadingChange}
-                isLoading={isLoading}
-              />
+        <main className="mx-auto px-2 py-4">
+          <div className="flex gap-3 h-full">
+            {/* First Column - Configuration */}
+            <div className="w-80 flex-shrink-0">
+              <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 h-full">
+                <h2 className="text-sm font-semibold text-gray-900 mb-3">
+                  Configuration - الإعدادات
+                </h2>
+                <ConfigPanel
+                  config={config}
+                  onConfigChange={handleConfigChange}
+                  onLoadingChange={handleLoadingChange}
+                  isLoading={isLoading}
+                />
+              </div>
             </div>
 
-            {/* Right Column - Preview */}
-            <div className="lg:col-span-2">
-              <LabelPreview
-                labelPages={labelPages}
-                config={config}
-                isLoading={isLoading}
-              />
+            {/* Second Column - Employee IDs */}
+            <div className="w-80 flex-shrink-0">
+              <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 h-full">
+                <h2 className="text-sm font-semibold text-gray-900 mb-3">
+                  Employee IDs
+                </h2>
+                <EmployeeInput
+                  onEmployeeIdsChange={handleEmployeeIdsChange}
+                  isLoading={isLoading}
+                />
+              </div>
+            </div>
+
+            {/* Third Column - Preview */}
+            <div className="flex-1 min-w-0">
+              <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 h-full">
+                <h2 className="text-sm font-semibold text-gray-900 mb-3">
+                  Preview of Your Labels
+                </h2>
+                <LabelPreview
+                  labelPages={labelPages}
+                  config={config}
+                  isLoading={isLoading}
+                  onConfigChange={handleConfigChange}
+                />
+              </div>
             </div>
           </div>
         </main>

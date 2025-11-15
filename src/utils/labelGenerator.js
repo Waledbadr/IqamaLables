@@ -39,6 +39,7 @@ const generateLabelsForPage = (employeeIds, config) => {
     startRow,
     startColumn,
     usedPositions,
+    customPositions = {},
   } = config;
 
   const labels = [];
@@ -58,13 +59,60 @@ const generateLabelsForPage = (employeeIds, config) => {
     }
   }
 
+  // Track which positions are already taken by custom positions
+  const takenPositions = new Set();
+  const customLabels = [];
+  
   employeeIds.forEach((employeeId, index) => {
-    if (index >= availablePositions.length) {
-      // No more available positions on this page
-      return;
+    const customPos = customPositions[employeeId];
+    
+    if (customPos && customPos.row !== undefined && customPos.col !== undefined) {
+      // This label has a custom position
+      const posKey = `${customPos.row}-${customPos.col}`;
+      if (!usedPositionsSet.has(posKey) && !takenPositions.has(posKey)) {
+        takenPositions.add(posKey);
+        customLabels.push({ employeeId, index, row: customPos.row, col: customPos.col });
+      }
     }
+  });
 
-    const { row, col } = availablePositions[index];
+  // Now place labels either in their custom positions or available positions
+  let availableIndex = 0;
+  
+  employeeIds.forEach((employeeId, index) => {
+    const customPos = customPositions[employeeId];
+    let row, col;
+    
+    if (customPos && customPos.row !== undefined && customPos.col !== undefined) {
+      // Use custom position
+      row = customPos.row;
+      col = customPos.col;
+      const posKey = `${row}-${col}`;
+      
+      // Skip if position is used or already taken
+      if (usedPositionsSet.has(posKey) || (takenPositions.has(posKey) && !customLabels.find(l => l.employeeId === employeeId))) {
+        return;
+      }
+    } else {
+      // Find next available position that isn't taken by custom positions
+      while (availableIndex < availablePositions.length) {
+        const pos = availablePositions[availableIndex];
+        const posKey = `${pos.row}-${pos.col}`;
+        
+        if (!takenPositions.has(posKey)) {
+          row = pos.row;
+          col = pos.col;
+          availableIndex++;
+          break;
+        }
+        availableIndex++;
+      }
+      
+      if (row === undefined || col === undefined) {
+        // No more available positions
+        return;
+      }
+    }
 
     // Calculate position
     const x = marginLeft + col * (labelWidth + horizontalSpacing);
@@ -83,6 +131,7 @@ const generateLabelsForPage = (employeeIds, config) => {
       col,
       gridRow: row,
       gridCol: col,
+      isCustomPosition: !!customPos,
     });
   });
 

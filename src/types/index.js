@@ -33,6 +33,9 @@ export const DEFAULT_CONFIG = {
   // Used positions (for resume printing)
   usedPositions: [], // Array of {row, col} objects representing used label positions
 
+  // Custom positions for each label (for manual placement)
+  customPositions: {}, // Object with employeeId as key and {row, col} as value
+
   // Text settings
   fontSize: 12, // pt
   fontFamily: 'Arial',

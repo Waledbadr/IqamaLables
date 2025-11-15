@@ -283,83 +283,109 @@ const ConfigPanel = ({ config, onConfigChange, isLoading, onLoadingChange }) => 
       {/* Layout Tab */}
       {activeTab === 'layout' && (
         <div className="space-y-4">
-          {/* Label Presets */}
+          {/* Label Presets - Featured Section */}
           <div className="input-group">
-            <label className="input-label">Label Preset - قالب الملصقات</label>
-            <div className="flex gap-2">
-              <select
-                value={selectedLabelPreset}
-                onChange={(e) => handleLabelPresetChange(e.target.value)}
-                className="input-field flex-1"
-                disabled={isLoading}
-              >
-                <option value="custom">Custom - مخصص</option>
-                {Object.entries(LABEL_PRESETS).map(([key, preset]) => (
-                  <option key={key} value={key}>
-                    {preset.name}
-                  </option>
-                ))}
-                {customLabelPresets.map((preset) => (
-                  <option key={preset.id} value={preset.id}>
-                    {preset.name} {preset.includesStyle ? '🎨' : '📐'} (مخصص)
-                  </option>
-                ))}
-              </select>
-
-              <button
-                onClick={() => setShowSaveLabelDialog(true)}
-                className="btn-secondary text-sm px-2"
-                title="Save current label settings as preset / حفظ إعدادات الملصق الحالية كقالب"
-                disabled={isLoading}
-              >
-                <Save className="w-4 h-4" />
-              </button>
-
-              {selectedLabelPreset !== 'custom' && !LABEL_PRESETS[selectedLabelPreset] && (
-                <button
-                  onClick={() => handleDeleteLabelPreset(selectedLabelPreset)}
-                  className="btn-secondary text-sm px-2 text-red-600 hover:text-red-700"
-                  title="Delete custom preset"
+            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
+              <div className="flex items-center gap-2 mb-3">
+                <Settings className="w-5 h-5 text-blue-600" />
+                <label className="input-label text-lg font-semibold text-blue-800">
+                  📋 Label Preset - قالب الملصقات
+                </label>
+              </div>
+              
+              <div className="flex gap-2">
+                <select
+                  value={selectedLabelPreset}
+                  onChange={(e) => handleLabelPresetChange(e.target.value)}
+                  className="input-field flex-1 text-base font-medium"
                   disabled={isLoading}
                 >
-                  <Trash2 className="w-4 h-4" />
+                  <option value="custom">🎨 Custom - مخصص</option>
+                  
+                  <optgroup label="📐 Built-in Presets - قوالب جاهزة">
+                    {Object.entries(LABEL_PRESETS).map(([key, preset]) => (
+                      <option key={key} value={key}>
+                        📄 {preset.name}
+                      </option>
+                    ))}
+                  </optgroup>
+                  
+                  {customLabelPresets.length > 0 && (
+                    <optgroup label="💾 My Saved Presets - قوالبي المحفوظة">
+                      {customLabelPresets.map((preset) => (
+                        <option key={preset.id} value={preset.id}>
+                          {preset.includesStyle ? '🎨' : '📐'} {preset.name} (مخصص)
+                        </option>
+                      ))}
+                    </optgroup>
+                  )}
+                </select>
+
+                <button
+                  onClick={() => setShowSaveLabelDialog(true)}
+                  className="btn-secondary text-sm px-3 bg-green-100 text-green-700 hover:bg-green-200"
+                  title="Save current label settings as preset / حفظ إعدادات الملصق الحالية كقالب"
+                  disabled={isLoading}
+                >
+                  <Save className="w-4 h-4" />
                 </button>
-              )}
-            </div>
 
-            {/* Error Display */}
-            {error && (
-              <div className="bg-red-50 border border-red-200 rounded-md p-2 mt-2">
-                <p className="text-sm text-red-700">{error}</p>
-              </div>
-            )}
-
-            {/* Preset Type Info */}
-            {selectedLabelPreset !== 'custom' && (
-              <div className="text-xs text-gray-600 mt-2 p-2 bg-blue-50 rounded">
-                {LABEL_PRESETS[selectedLabelPreset] ? (
-                  <div>
-                    📐 <strong>قالب جاهز / Built-in Preset:</strong> يحتوي على إعدادات التخطيط فقط
-                    <br />
-                    Contains layout settings only
-                  </div>
-                ) : (
-                  (() => {
-                    const customPreset = customLabelPresets.find(p => p.id === selectedLabelPreset);
-                    return customPreset ? (
-                      <div>
-                        {customPreset.includesStyle ? '🎨' : '📐'} <strong>قالب مخصص / Custom Preset:</strong>{' '}
-                        {customPreset.includesStyle 
-                          ? 'يحتوي على التخطيط والتنسيق / Contains layout and style settings'
-                          : 'يحتوي على إعدادات التخطيط فقط / Contains layout settings only'
-                        }
-                      </div>
-                    ) : null;
-                  })()
+                {selectedLabelPreset !== 'custom' && !LABEL_PRESETS[selectedLabelPreset] && (
+                  <button
+                    onClick={() => handleDeleteLabelPreset(selectedLabelPreset)}
+                    className="btn-secondary text-sm px-2 text-red-600 hover:text-red-700"
+                    title="Delete custom preset"
+                    disabled={isLoading}
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </button>
                 )}
               </div>
-            )}
+
+              {/* Quick Info about selected preset */}
+              {selectedLabelPreset !== 'custom' && LABEL_PRESETS[selectedLabelPreset] && (
+                <div className="mt-3 p-2 bg-white rounded border text-sm">
+                  <div className="flex justify-between text-gray-700">
+                    <span><strong>Size:</strong> {LABEL_PRESETS[selectedLabelPreset].labelWidth}×{LABEL_PRESETS[selectedLabelPreset].labelHeight}mm</span>
+                    <span><strong>Layout:</strong> {LABEL_PRESETS[selectedLabelPreset].labelsPerRow}×{LABEL_PRESETS[selectedLabelPreset].labelsPerColumn}</span>
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
+
+          {/* Error Display */}
+          {error && (
+            <div className="bg-red-50 border border-red-200 rounded-md p-2 mt-2">
+              <p className="text-sm text-red-700">{error}</p>
+            </div>
+          )}
+
+          {/* Preset Type Info */}
+          {selectedLabelPreset !== 'custom' && (
+            <div className="text-xs text-gray-600 mt-2 p-2 bg-blue-50 rounded">
+              {LABEL_PRESETS[selectedLabelPreset] ? (
+                <div>
+                  📐 <strong>قالب جاهز / Built-in Preset:</strong> يحتوي على إعدادات التخطيط فقط
+                  <br />
+                  Contains layout settings only
+                </div>
+              ) : (
+                (() => {
+                  const customPreset = customLabelPresets.find(p => p.id === selectedLabelPreset);
+                  return customPreset ? (
+                    <div>
+                      {customPreset.includesStyle ? '🎨' : '📐'} <strong>قالب مخصص / Custom Preset:</strong>{' '}
+                      {customPreset.includesStyle 
+                        ? 'يحتوي على التخطيط والتنسيق / Contains layout and style settings'
+                        : 'يحتوي على إعدادات التخطيط فقط / Contains layout settings only'
+                      }
+                    </div>
+                  ) : null;
+                })()
+              )}
+            </div>
+          )}
 
           {/* Paper Size */}
           <div className="input-group">
