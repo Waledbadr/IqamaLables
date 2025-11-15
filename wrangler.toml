@@ -11,5 +11,5 @@ pages_build_output_dir = "dist"
 
 [[kv_namespaces]]
 binding = "PRESETS"
-id = "YOUR_KV_NAMESPACE_ID"
-preview_id = "YOUR_PREVIEW_KV_NAMESPACE_ID"
+id = "d1ce93d311c34504939483fbff10c523"
+preview_id = "b68cd2fe859f47e5bf4a505cb870ff1a"
