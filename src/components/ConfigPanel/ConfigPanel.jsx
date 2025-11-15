@@ -229,6 +229,57 @@ const ConfigPanel = ({ config, onConfigChange, isLoading, onLoadingChange }) => 
     }
   }, [customLabelPresets, selectedLabelPreset]);
 
+  // Export presets to file
+  const handleExportPresets = useCallback(() => {
+    if (customLabelPresets.length === 0) {
+      setError('⚠️ لا توجد قوالب محفوظة للتصدير / No saved presets to export');
+      setTimeout(() => setError(''), 3000);
+      return;
+    }
+    
+    const success = exportPresetsToFile(customLabelPresets, 'iqama-labels-presets.json');
+    if (success) {
+      setError('✅ تم تصدير القوالب بنجاح! / Presets exported successfully!');
+      setTimeout(() => setError(''), 3000);
+    } else {
+      setError('❌ فشل تصدير القوالب / Failed to export presets');
+      setTimeout(() => setError(''), 3000);
+    }
+  }, [customLabelPresets]);
+
+  // Import presets from file
+  const handleImportPresets = useCallback(async (event) => {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    try {
+      const importedPresets = await importPresetsFromFile(file);
+      
+      // Merge with existing presets (avoid duplicates by ID)
+      const existingIds = new Set(customLabelPresets.map(p => p.id));
+      const newPresets = importedPresets.filter(p => !existingIds.has(p.id));
+      
+      if (newPresets.length === 0) {
+        setError('ℹ️ جميع القوالب موجودة بالفعل / All presets already exist');
+        setTimeout(() => setError(''), 3000);
+        return;
+      }
+      
+      const updatedPresets = [...customLabelPresets, ...newPresets];
+      setCustomLabelPresets(updatedPresets);
+      localStorage.setItem('labelPrinter_customLabelPresets', JSON.stringify(updatedPresets));
+      
+      setError(`✅ تم استيراد ${newPresets.length} قالب بنجاح! / ${newPresets.length} presets imported successfully!`);
+      setTimeout(() => setError(''), 3000);
+    } catch (error) {
+      setError('❌ فشل استيراد القوالب: ' + error.message + ' / Failed to import presets');
+      setTimeout(() => setError(''), 4000);
+    }
+    
+    // Reset file input
+    event.target.value = '';
+  }, [customLabelPresets]);
+
   // Reset to defaults
   const handleReset = useCallback(() => {
     onConfigChange(DEFAULT_CONFIG);
@@ -329,6 +380,29 @@ const ConfigPanel = ({ config, onConfigChange, isLoading, onLoadingChange }) => 
                 >
                   <Save className="w-4 h-4" />
                 </button>
+
+                <button
+                  onClick={handleExportPresets}
+                  className="btn-secondary text-sm px-3 bg-blue-100 text-blue-700 hover:bg-blue-200"
+                  title="Export all saved presets / تصدير جميع القوالب المحفوظة"
+                  disabled={isLoading || customLabelPresets.length === 0}
+                >
+                  <Download className="w-4 h-4" />
+                </button>
+
+                <label 
+                  className={`btn-secondary text-sm px-3 bg-purple-100 text-purple-700 hover:bg-purple-200 cursor-pointer ${isLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
+                  title="Import presets from file / استيراد القوالب من ملف"
+                >
+                  <Upload className="w-4 h-4" />
+                  <input
+                    type="file"
+                    accept=".json"
+                    onChange={handleImportPresets}
+                    className="hidden"
+                    disabled={isLoading}
+                  />
+                </label>
 
                 {selectedLabelPreset !== 'custom' && !LABEL_PRESETS[selectedLabelPreset] && (
                   <button
